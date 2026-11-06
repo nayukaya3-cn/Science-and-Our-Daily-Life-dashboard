@@ -4,13 +4,14 @@
 起動: streamlit run app.py
   ホームの中身は home.py、各ページは pages/、計算部品は tanpaku_core.py にあります。
 
-左メニューは「授業の流れ」の順に3つに束ねています（1つのまとまりは最大6ページ）。
+左メニューは「授業の流れ」の順に4つに束ねています（1つのまとまりは最大6ページ）。
 ページを足すときは NAV に1行足すだけです（ファイルが無い行は自動で飛ばします）。
 """
 from pathlib import Path
 
 import streamlit as st
 
+import sister_sites as ss
 import ui
 
 ROOT = Path(__file__).parent
@@ -33,6 +34,9 @@ NAV = {
         ("pages/5_joho1.py", "情報Ⅰとつなげる", "💻"),
         ("pages/6_quiz.py", "確認クイズ", "✅"),
     ],
+    "🌾 フィールドワークへ": [
+        ("pages/7_field.py", "畑とパン工房につなげる", "🌾"),
+    ],
 }
 
 
@@ -50,7 +54,12 @@ def build_nav() -> dict[str, list]:
 with st.sidebar:
     st.toggle("やさしい解説を表示（文系向け）", value=True, key=ui.EASY_KEY)
     st.caption("科学と人間生活 第1部 生命の科学 1章A ① 体をつくるタンパク質")
-    st.caption("牛肉・魚・大豆・卵・ゼラチンの配列は説明用の架空データ。"
+    st.caption("食品（牛肉・魚・大豆・卵・ゼラチン・小麦）の配列は説明用の架空データ。"
                "ヒトのインスリン・ヘモグロビンは実在の配列です。")
+    st.divider()
+    st.markdown("**🔗 姉妹サイト**")
+    _b = ss.SITES["bakery"]
+    st.link_button(f"{_b['icon']} {_b['name']} ↗", ss.url("bakery") or _b["repo"], width="stretch")
+    st.caption(_b["role"])
 
 st.navigation(build_nav()).run()

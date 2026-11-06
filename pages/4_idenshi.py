@@ -4,6 +4,7 @@ import html
 import pandas as pd
 import streamlit as st
 
+import sister_sites as ss
 import tanpaku_core as tc
 import ui
 
@@ -58,3 +59,5 @@ with st.expander("📖 遺伝暗号表（64コドン）を見る"):
     st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
     st.caption("*は終止コドン。AUG（メチオニン）は開始の合図にもなる。"
                "※このアプリの遺伝子は、説明用に各アミノ酸の代表コドンで組み立てたもの。")
+
+ss.render("tanpaku", "idenshi")

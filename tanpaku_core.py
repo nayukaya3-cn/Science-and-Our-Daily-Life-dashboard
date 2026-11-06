@@ -8,8 +8,8 @@ Streamlit に依存しない純粋な関数だけを置く（テストしやす�
   - 教科書 p.14〜15：細胞の成分（水67％・タンパク質15％）、アミノ酸は20種類、
     タンパク質は消化されてアミノ酸として吸収され、遺伝子の情報にしたがって合成される
   - ヒトのインスリンA鎖・B鎖、ヘモグロビンβ鎖（先頭30残基）は実在の配列
-  - 牛肉・魚・大豆・卵・ゼラチンの配列は説明用の架空データ
-    （ゼラチンがトリプトファンをほとんど含まないのは実際の性質）
+  - 牛肉・魚・大豆・卵・ゼラチン・パン用小麦の配列は説明用の架空データ
+    （ゼラチンがトリプトファンをほとんど含まない、小麦がリシンに乏しいのは実際の性質）
   - 遺伝暗号表は標準遺伝暗号。遺伝子は説明用に「各アミノ酸の代表コドン」で組み立てたもの
 """
 from __future__ import annotations
@@ -74,13 +74,21 @@ def make_food_protein(length: int, bias: str, seed: int, exclude: str = "") -> s
     return "".join(rng.choices(letters, weights=weights, k=length))
 
 
+WHEAT = "🍞 パン用小麦（ミナミノカオリ・強力粉）"
+
 FOODS = {
     "🥩 牛肉（ハンバーグ）": make_food_protein(120, "LKEAG", 1),
     "🐟 魚（焼き魚）": make_food_protein(100, "AGEDV", 2),
     "🫘 大豆（納豆）": make_food_protein(110, "ENRSQ", 3),
     "🥚 卵（卵焼き）": make_food_protein(90, "LSVAE", 4),
     "🍮 ゼラチン（トリプトファンを含まない）": make_food_protein(100, "GPGPGP", 5, exclude="W"),
+    # パン用小麦のタンパク質（グルテン）はグルタミン(Q)・プロリン(P)が多く、リシン(K)が少ない（実際の性質）。
+    # 実際にはリシンも少しは含む（小麦の「第一制限アミノ酸」）。差を見やすくするため、ここでは0にしている。
+    WHEAT: make_food_protein(120, "QQQPPGLS", 6, exclude="K"),
 }
+
+# 小麦と組み合わせる食品（アミノ酸の補足効果を確かめる）
+COMPLEMENT_PARTNERS = ["🫘 大豆（納豆）", "🥚 卵（卵焼き）", "🐟 魚（焼き魚）", "🍮 ゼラチン（トリプトファンを含まない）"]
 
 # ─────────────────────────────────────────────
 # 消化・吸収・合成
@@ -105,6 +113,20 @@ def lacking(target: str, pool: Counter) -> dict[str, int]:
     """合成に足りないアミノ酸と、あと何個必要か"""
     need = Counter(target)
     return {a: n - pool[a] for a, n in need.items() if pool[a] < n}
+
+
+def complement_table(target: str, times: int = 3) -> list[dict]:
+    """アミノ酸の補足効果：小麦だけ／小麦＋○○ で、ヒトのタンパク質をつくれるか"""
+    rows = []
+    for partner in [None, *COMPLEMENT_PARTNERS]:
+        menu = [WHEAT] + ([partner] if partner else [])
+        short = lacking(target, absorb(menu, times))
+        rows.append({
+            "食べ合わせ": "小麦だけ（パンだけ）" if partner is None else f"小麦 ＋ {partner}",
+            "合成できる？": "✅ できる" if not short else "❌ 材料不足",
+            "足りないアミノ酸": "、".join(f"{AMINO[a][0]}（あと{n}個）" for a, n in short.items()) or "─",
+        })
+    return rows
 
 
 # ─────────────────────────────────────────────
@@ -201,6 +223,9 @@ QUIZ = [
       "胃で牛の遺伝子が壊されるだけだから"],
      "アミノ酸に分解され、自分の遺伝子にしたがって並べ直されるから",
      "材料（アミノ酸）は食べ物から、並べ方（設計図）は自分の遺伝子から。"),
+    ("小麦（パン）だけを食べ続けたとき、足りなくなりやすい必須アミノ酸は？",
+     ["グルタミン", "プロリン", "リシン", "グリシン"], "リシン",
+     "小麦のタンパク質はグルタミン・プロリンが多く、リシンが少ない。大豆や卵と組み合わせると補い合える（アミノ酸の補足効果）。"),
 ]
 
 
@@ -222,6 +247,10 @@ def _self_check() -> None:
     assert synthesize(hb, absorb(["🍮 ゼラチン（トリプトファンを含まない）"], 10))[1] == {"W": 1}
     assert "W" not in FOODS["🍮 ゼラチン（トリプトファンを含まない）"]
     assert all(q[2] in q[1] for q in QUIZ)
+    assert "K" not in FOODS[WHEAT] and FOODS[WHEAT].count("Q") > FOODS[WHEAT].count("A")
+    ct = complement_table(HUMAN_PROTEINS["ヘモグロビンβ鎖・先頭30個（酸素を運ぶ）"])
+    assert ct[0]["合成できる？"].startswith("❌") and "リシン" in ct[0]["足りないアミノ酸"]  # 小麦だけ
+    assert ct[1]["合成できる？"].startswith("✅")                                        # 小麦＋大豆
     assert round(bits(1), 2) == 4.32
 
 
