@@ -23,6 +23,8 @@ jobs:
       - name: 依存ライブラリ
         run: pip install -r requirements.txt pytest
       - name: 計算部品の自己チェック
-        run: python tanpaku_core.py
+        run: |
+          python tanpaku_core.py
+          python backbone.py
       - name: テスト（計算＋全ページの描画）
         run: pytest -q
