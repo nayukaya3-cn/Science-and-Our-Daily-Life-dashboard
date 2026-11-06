@@ -29,8 +29,8 @@ Python と Streamlit で動かして確かめる教材です。
 ## 手元で動かす
 
 ```bash
-git clone https://github.com/<あなたのユーザー名>/tanpakushitsu-dashboard.git
-cd tanpakushitsu-dashboard
+git clone https://github.com/nayukaya3-cn/Science-and-Our-Daily-Life-dashboard.git
+cd Science-and-Our-Daily-Life-dashboard
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 streamlit run app.py
