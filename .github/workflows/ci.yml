@@ -26,5 +26,6 @@ jobs:
         run: |
           python tanpaku_core.py
           python backbone.py
+          python next_move.py
       - name: テスト（計算＋全ページの描画）
         run: pytest -q

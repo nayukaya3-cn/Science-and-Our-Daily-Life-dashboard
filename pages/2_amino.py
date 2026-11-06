@@ -30,3 +30,5 @@ with c2:
     st.metric("表示中のアミノ酸", f"{len(adf)} 種")
     st.caption("4（DNAの塩基）・20（アミノ酸）・64（コドン）・約10万（ヒトのタンパク質）は"
                "共通テストで取り違えやすい数字。")
+
+ui.next_move_tag("amino")

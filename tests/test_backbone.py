@@ -67,3 +67,23 @@ def test_teacher_page_judgement(monkeypatch):
     at.radio(key="pred_res_①").set_value("支持").run()
     at.radio(key="pred_res_②").set_value("支持").run()
     assert any("判定：維持" in s.value for s in at.success)
+
+
+def test_next_move_self_check():
+    import next_move as nm
+    nm._self_check()
+
+
+def test_every_page_ends_with_next_move_tag():
+    """出発点の問いから始まる各ページの最後に『🏷️ 次の一手』タグがある"""
+    for f in ["home.py", *[f"pages/{n}.py" for n in STUDENT_PAGES], "pages/6_quiz.py"]:
+        lines = [ln for ln in (ROOT / f).read_text(encoding="utf-8").splitlines() if ln.strip()]
+        assert lines[-1].startswith("ui.next_move_tag("), f
+
+
+def test_next_page_sheet(monkeypatch):
+    at = _run("pages/9_next.py", monkeypatch)
+    assert not at.exception
+    at.selectbox[0].set_value("直前期（12月〜）").run()
+    at.text_input(key="nm_tactics").input("模試の第2問を解き直す").run()
+    assert not at.exception and len(at.get("download_button")) == 1

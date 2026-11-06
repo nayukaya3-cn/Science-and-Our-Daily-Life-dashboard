@@ -94,3 +94,5 @@ with st.container(border=True):
                 "**食べ物は『材料』、設計図は『自分の遺伝子』。** だから牛肉を食べても牛にはならない。")
 
 ss.render("tanpaku", "shoka")
+
+ui.next_move_tag("shoka")

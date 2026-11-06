@@ -5,6 +5,7 @@
   - chain_html(): アミノ酸を色つきの丸で並べる（教科書の図3・図4のイメージ）
   - reading_card(): 読解カード（4項目）。全ページで同じ見た目・同じ言葉（背骨①＝共有エンコーダ）
   - predict(): 先に予想 → 答え → ずれ δ（背骨の「TD誤差が出る場面」。ログはセッションの中だけ）
+  - next_move_tag(): ページの最後の「🏷️ 次の一手」タグ（人生戦略・戦術のヒント集への入口）
 """
 from __future__ import annotations
 
@@ -14,9 +15,10 @@ import random
 import streamlit as st
 
 import backbone as bb
+import next_move as nm
 import tanpaku_core as tc
 
-API_VERSION = 2          # 画面部品の版。app.py が古いモジュールの読み込みを検出するのに使う
+API_VERSION = 3          # 画面部品の版。app.py が古いモジュールの読み込みを検出するのに使う
 EASY_KEY = "easy_mode"  # app.py のサイドバーのスイッチと共有
 TD_LOG_KEY = "td_log"   # 予想と実測のずれ（誤差ログ）。このセッションの中だけ
 
@@ -30,6 +32,8 @@ _CSS = """
 .hero .lead {margin: 0; font-size: 1.02rem; line-height: 1.8;}
 .pbadge {display:inline-block; padding:1px 8px; margin-right:4px; border-radius:10px;
           background:#e4ecf5; color:#22313f; font-size:.8rem; font-weight:600;}
+.nmtag {display:inline-block; padding:2px 10px; border-radius:10px; background:#fdecc8;
+         color:#6b4a00; font-size:.8rem; font-weight:700; margin-right:6px;}
 .aa {display:inline-block; border-radius:50%; color:#111; text-align:center;
      font-size:12px; font-weight:600; border:1px solid #555; position:relative;}
 </style>
@@ -123,3 +127,14 @@ def predict(key: str, question: str, actual: float, unit: str, *, protocol: str 
             st.error("大きくずれた！ ここがいちばんの学びどころ。")
         st.text_input("ずれの理由（1行：考え方／測り方／自然のばらつき）", key=f"why_{key}")
         return rec
+
+
+def next_move_tag(page_key: str) -> None:
+    """ページの最後に付けるタグ：このページの学びを、人生の戦略・戦術に持ち出すヒント1つ"""
+    h = nm.BY_ID[nm.PAGE_TAG[page_key]]
+    st.markdown(_CSS, unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown(f"<span class='nmtag'>🏷️ 次の一手</span><b>{html.escape(h['icon'] + ' ' + h['title'])}</b>",
+                    unsafe_allow_html=True)
+        st.markdown(f"**戦略**：{h['strategy']}  \n**戦術**：{h['tactics']}")
+        st.caption("ほかのヒントと『次の一手シート』は、左メニュー「🚀 次の一手」へ（今後の人生戦略・戦術を立案する際のヒント集）。")

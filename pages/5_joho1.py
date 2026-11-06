@@ -70,3 +70,5 @@ i を 4 から 要素数(遺伝子) - 2 まで 3 ずつ増やしながら繰り�
     st.caption("先頭の3文字（開始コドン AUG）の次から、3文字ずつ読み進める。")
 
 ss.render("tanpaku", "joho1")
+
+ui.next_move_tag("joho1")
