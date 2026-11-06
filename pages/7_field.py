@@ -96,3 +96,5 @@ st.info("小麦アレルギーは、小麦のタンパク質に体の免疫が�
         "当日の重要管理点（アレルゲン）として管理します。", icon="⚠️")
 
 ss.render("tanpaku", "field")
+
+ui.next_move_tag("field")

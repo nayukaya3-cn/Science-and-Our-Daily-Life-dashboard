@@ -63,3 +63,5 @@ if right and all(w for w, _ in wrong):
     text = f"資料：{src}\n正解：{right}\n" + "".join(f"誤答{k}：{w}（なぜ言えないか：{y or '未記入'}）\n"
                                                  for k, (w, y) in enumerate(wrong, 1))
     st.download_button("つくった問題をテキストで保存", text.encode("utf-8"), "自作問題.txt", "text/plain")
+
+ui.next_move_tag("quiz")

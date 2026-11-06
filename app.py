@@ -4,7 +4,7 @@
 起動: streamlit run app.py
   ホームの中身は home.py、各ページは pages/、計算部品は tanpaku_core.py にあります。
 
-左メニューは「授業の流れ」の順に4つ＋教員向け1つに束ねています（1つのまとまりは最大6ページ）。
+左メニューは「授業の流れ」の順に5つ（最後は「🚀 次の一手」）＋教員向け1つに束ねています（1つのまとまりは最大6ページ）。
 ページを足すときは NAV に1行足すだけです（ファイルが無い行は自動で飛ばします）。
 """
 import importlib
@@ -13,14 +13,15 @@ from pathlib import Path
 import streamlit as st
 
 import backbone
+import next_move
 import sister_sites as ss
 import tanpaku_core
 import ui
 
 # Streamlit Cloud は更新後も古いモジュールを読み込んだまま動くことがある（app.py だけ新しくなる）。
 # 画面部品の版が古ければ、依存の順（計算部品 → 背骨 → 画面部品）に読み直す。
-if getattr(ui, "API_VERSION", 0) < 2:
-    for _m in (tanpaku_core, backbone, ss, ui):
+if getattr(ui, "API_VERSION", 0) < 3:
+    for _m in (tanpaku_core, backbone, next_move, ss, ui):
         importlib.reload(_m)
 
 ROOT = Path(__file__).parent
@@ -45,6 +46,9 @@ NAV = {
     ],
     "🌾 フィールドワークへ": [
         ("pages/7_field.py", "畑とパン工房につなげる", "🌾"),
+    ],
+    "🚀 次の一手": [
+        ("pages/9_next.py", "人生戦略・戦術のヒント集", "🚀"),
     ],
     "🧑‍🏫 教員向け（検証中）": [
         ("pages/8_kyoin.py", "設計仮説H：背骨の検証", "🧭"),

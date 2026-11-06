@@ -96,3 +96,5 @@ with st.expander("📖 遺伝暗号表（64コドン）を見る"):
                "※このアプリの遺伝子は、説明用に各アミノ酸の代表コドンで組み立てたもの。")
 
 ss.render("tanpaku", "idenshi")
+
+ui.next_move_tag("idenshi")
