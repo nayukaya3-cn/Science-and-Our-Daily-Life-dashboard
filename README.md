@@ -1,6 +1,6 @@
 # 体をつくるタンパク質 ― 「科学と人間生活」×情報Ⅰ インタラクティブ教材
 
-**▶ 公開ダッシュボード：`https://<あなたのアプリ名>.streamlit.app/`**（デプロイ後にここを書きかえる）
+**▶ 公開ダッシュボード：<https://science-and-our-daily-life-dashboard-eemy7afzawym4gn656fjat.streamlit.app/>**
 
 ![ホーム画面](docs/img/screenshot_top.png)
 
@@ -14,7 +14,7 @@ Python と Streamlit で動かして確かめる教材です。
 
 ## 🔗 教材ネットワーク：姉妹サイト「スマートパン屋農家」
 
-| | 🧬 体をつくるタンパク質（このリポジトリ） | 🌾 [スマートパン屋農家](https://github.com/nayukaya3-cn/Smart-Bakery-Farmer_20260923)（[公開アプリ](https://smart-bakery-farm.streamlit.app/)） |
+| | 🧬 体をつくるタンパク質（このリポジトリ・[公開アプリ](https://science-and-our-daily-life-dashboard-eemy7afzawym4gn656fjat.streamlit.app/)） | 🌾 [スマートパン屋農家](https://github.com/nayukaya3-cn/Smart-Bakery-Farmer_20260923)（[公開アプリ](https://smart-bakery-farm.streamlit.app/)） |
 |---|---|---|
 | 役割 | **教室**：教科書の1単元を Python で動かす（事前学習） | **現場**：畑・ハウス・パン工房で確かめる（フィールドワーク） |
 | 3段構え | ① 計算する・② 見える化する | ③ 自分の条件で判断する |
