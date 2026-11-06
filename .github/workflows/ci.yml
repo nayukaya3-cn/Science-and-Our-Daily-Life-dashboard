@@ -1,0 +1,28 @@
+# テスト：push・PRのたびに、計算部品の自己チェックと全ページの描画テストを実行
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: 依存ライブラリ
+        run: pip install -r requirements.txt pytest
+      - name: 計算部品の自己チェック
+        run: python tanpaku_core.py
+      - name: テスト（計算＋全ページの描画）
+        run: pytest -q

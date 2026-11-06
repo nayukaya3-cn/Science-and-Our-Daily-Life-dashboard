@@ -1,0 +1,9 @@
+.venv/
+.venv-*/
+__pycache__/
+.pytest_cache/
+.DS_Store
+.streamlit/secrets.toml
+# 教科書の写真・スキャンは著作物なのでリポジトリに入れない
+*.pdf
+textbook/

@@ -1,0 +1,14 @@
+# セキュリティ設定（公開アプリ用）
+[server]
+maxUploadSize = 10            # MB。このアプリはアップロードを使わないので小さく
+enableXsrfProtection = true   # クロスサイトリクエストフォージェリ対策（既定値を明示）
+
+[client]
+showErrorDetails = "none"     # 画面にはエラーの詳細を出さない（内部情報の漏えい防止）。詳細はログへ
+toolbarMode = "viewer"        # 閲覧者に開発者メニューを見せない
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+primaryColor = "#4a8a3a"
