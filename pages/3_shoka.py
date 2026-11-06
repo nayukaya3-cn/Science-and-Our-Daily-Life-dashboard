@@ -12,6 +12,13 @@ ui.hero("教科書 p.15 図4", "🍖 食べる → 消化 → 吸収 → 合成"
 ui.hint("食べたタンパク質は、消化酵素によって鎖が切られ、バラバラのアミノ酸になってから小腸で吸収される。"
         "このとき『並び順』の情報は消える。体は自分の遺伝子にしたがって並べ直す。")
 
+ui.reading_card(
+    axis="アミノ酸の種類 × 個数（たくわえと、合成に必要な数）", unit="個",
+    control="比べる表では『食べ物』だけを変え、食べる回数と、つくるタンパク質はそろえる",
+    can="材料がそろえば、何を食べても同じ『ヒトの』配列ができる",
+    cannot="食品の栄養のよしあし全体（見ているのは1つのタンパク質の材料だけ。食品の配列は説明用の架空データ）",
+    protocols=["P1", "P3"], material="アミノ酸のたくわえのグラフと、対照実験の表")
+
 c1, c2, c3 = st.columns([2, 1, 2])
 menu = c1.multiselect("① 食べるもの（複数可）", list(tc.FOODS), default=[list(tc.FOODS)[0]])
 times = c2.slider("食べる回数", 1, 10, 3)
@@ -59,6 +66,17 @@ if short:
 else:
     ui.chain(protein)
     st.success(f"合成成功：{target_name}")
+    origin = tc.synthesize_with_origin(tc.make_gene(target), menu, times, seed)
+    if origin:
+        st.markdown("**🏷️ どのアミノ酸が、どの食べ物から来た？**（教科書 p.19：牛肉由来のとなりに大豆由来が並ぶこともある）")
+        cells = "".join(
+            f"<span style='display:inline-block;text-align:center;margin:0 2px'>"
+            f"<span class='aa' title='{tc.AMINO[a][0]}' style='width:26px;height:26px;line-height:26px;"
+            f"background:{tc.COLOR[a]}'>{a}</span><br><span style='font-size:15px'>{f.split()[0]}</span></span>"
+            for a, f in origin)
+        st.markdown(ui._CSS + f"<div style='line-height:30px;padding:4px 0'>{cells}</div>", unsafe_allow_html=True)
+        st.caption("並び順（設計図）はヒトの遺伝子が決める。どの食べ物から来た部品かは、たくわえから取り出したときの偶然。"
+                   "食べ物を2つ以上選ぶと、出どころが混ざるのがわかる。")
 
 st.subheader("🔬 比べてみよう：食べ物を1種類ずつ変えたら？（対照実験）")
 ui.hint("変えるのは『食べ物』だけ。食べる回数とつくるタンパク質はそろえてある（条件の統制）。")

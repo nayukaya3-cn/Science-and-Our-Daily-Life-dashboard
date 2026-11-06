@@ -2,6 +2,7 @@
 import pandas as pd
 import streamlit as st
 
+import backbone as bb
 import sister_sites as ss
 import tanpaku_core as tc
 import ui
@@ -38,6 +39,12 @@ target_name = c1.selectbox("つくるヒトのタンパク質", list(tc.HUMAN_PR
 times = c2.slider("食べる回数", 1, 10, 3, key="field_times")
 target = tc.HUMAN_PROTEINS[target_name]
 st.dataframe(pd.DataFrame(tc.complement_table(target, times)), hide_index=True, width="stretch")
+ui.reading_card(
+    axis="食べ合わせ × 合成できるか（足りないアミノ酸と個数）", unit="個",
+    control="小麦の量・食べる回数・つくるタンパク質はそろえ、組み合わせる相手だけを変える",
+    can="小麦だけではリシンが足りず、大豆や卵と組み合わせると補える",
+    cannot="実際の小麦のリシンが0であること（差を見やすくするため0にしている）。パンが体に悪いこと（比べていない）",
+    protocols=["P3", "P2"], material="補足効果の表")
 
 wheat = tc.FOODS[tc.WHEAT]
 m1, m2, m3 = st.columns(3)
@@ -68,6 +75,21 @@ with st.container(border=True):
                      placeholder="例：強力粉と薄力粉で、こねたときの伸び方はどれくらい違うのか")
     if q:
         st.download_button("問いをテキストで保存", q.encode("utf-8"), "フィールドワークの問い.txt", "text/plain")
+
+st.subheader("④ 測る前に予想を書く（仮説シート項目5「予想グラフ」）")
+ui.hint("現場で測る前に『こうなるはず』を数字で書いておく。当日の実測とのずれ（δ）が、いちばんの学びどころになる。"
+        "鳥に食べられた・倒れたなどの『失敗』も消さずに野帳に書こう。")
+plan = st.data_editor(pd.DataFrame([{"場面": e["場面"], "プロトコル": e["protocol"], "予想": None, "単位": e["unit"]}
+                                    for e in bb.FW_EPISODES]),
+                      hide_index=True, width="stretch", key="fw_plan",
+                      column_config={"予想": st.column_config.NumberColumn("予想（数字）"),
+                                     "プロトコル": st.column_config.SelectboxColumn(options=list(bb.PROTOCOLS))})
+if plan["予想"].notna().all():
+    plan["実測（当日に記入）"] = ""
+    st.download_button("予想シートをCSVで保存（野帳に貼る）", plan.to_csv(index=False).encode("utf-8-sig"),
+                       "FW予想シート.csv", "text/csv")
+else:
+    st.caption("4つの場面すべてに予想を書くと、野帳に貼るCSVを保存できます。")
 
 st.info("小麦アレルギーは、小麦のタンパク質に体の免疫がはたらきすぎて起こる反応です。"
         "フィールドワークでは、受け入れ先と学校が事前に参加者の状況を確認し、"
