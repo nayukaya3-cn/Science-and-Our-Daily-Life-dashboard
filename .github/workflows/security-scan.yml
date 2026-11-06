@@ -28,5 +28,5 @@ jobs:
       - name: コードの危険なパターン（bandit）
         run: |
           pip install -q bandit
-          # B311（random）は教材の乱数で、暗号用途ではないため除外
-          bandit -q -r . -x ./tests,./.venv --skip B311
+          # B311（random）は教材の乱数で暗号用途ではない、B101（assert）は自己チェック用のため除外
+          bandit -q -r . -x ./tests,./.venv --skip B311,B101
