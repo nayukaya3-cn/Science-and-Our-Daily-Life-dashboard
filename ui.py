@@ -16,6 +16,7 @@ import streamlit as st
 import backbone as bb
 import tanpaku_core as tc
 
+API_VERSION = 2          # 画面部品の版。app.py が古いモジュールの読み込みを検出するのに使う
 EASY_KEY = "easy_mode"  # app.py のサイドバーのスイッチと共有
 TD_LOG_KEY = "td_log"   # 予想と実測のずれ（誤差ログ）。このセッションの中だけ
 

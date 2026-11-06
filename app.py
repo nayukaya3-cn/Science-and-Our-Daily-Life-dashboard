@@ -7,12 +7,21 @@
 左メニューは「授業の流れ」の順に4つ＋教員向け1つに束ねています（1つのまとまりは最大6ページ）。
 ページを足すときは NAV に1行足すだけです（ファイルが無い行は自動で飛ばします）。
 """
+import importlib
 from pathlib import Path
 
 import streamlit as st
 
+import backbone
 import sister_sites as ss
+import tanpaku_core
 import ui
+
+# Streamlit Cloud は更新後も古いモジュールを読み込んだまま動くことがある（app.py だけ新しくなる）。
+# 画面部品の版が古ければ、依存の順（計算部品 → 背骨 → 画面部品）に読み直す。
+if getattr(ui, "API_VERSION", 0) < 2:
+    for _m in (tanpaku_core, backbone, ss, ui):
+        importlib.reload(_m)
 
 ROOT = Path(__file__).parent
 MAX_PER_SECTION = 6
@@ -57,7 +66,7 @@ def build_nav() -> dict[str, list]:
 with st.sidebar:
     st.toggle("やさしい解説を表示（文系向け）", value=True, key=ui.EASY_KEY)
     st.caption("科学と人間生活 第1部 生命の科学 1章A ① 体をつくるタンパク質・③ タンパク質の合成")
-    _n = len(st.session_state.get(ui.TD_LOG_KEY, {}))
+    _n = len(st.session_state.get(getattr(ui, "TD_LOG_KEY", "td_log"), {}))
     if _n:
         st.caption(f"🎯 このセッションの予想：{_n} 件（ずれ δ は教員ページで一覧できます。保存はしません）")
     st.caption("食品（牛肉・魚・大豆・卵・ゼラチン・小麦）の配列は説明用の架空データ。"
