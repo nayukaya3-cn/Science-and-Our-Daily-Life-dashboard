@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+import sister_sites as ss
 import tanpaku_core as tc
 import ui
 
@@ -73,3 +74,5 @@ with st.container(border=True):
     st.markdown("材料が足りれば、**何を食べても、できるのは同じ『ヒトの』タンパク質**。"
                 "食べ物の配列（牛らしさ・魚らしさ）は消化の時点で消え、体に残らない。"
                 "**食べ物は『材料』、設計図は『自分の遺伝子』。** だから牛肉を食べても牛にはならない。")
+
+ss.render("tanpaku", "shoka")

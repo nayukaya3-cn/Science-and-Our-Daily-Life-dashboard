@@ -4,7 +4,7 @@ import streamlit as st
 import tanpaku_core as tc
 import ui
 
-ui.hero("まとめ", "✅ 確認クイズ", "5問で、今日の要点を確かめよう。")
+ui.hero("まとめ", "✅ 確認クイズ", f"{len(tc.QUIZ)}問で、今日の要点を確かめよう。")
 ui.hint("まちがえても大丈夫。解説を読んで、もう一度選び直せます。")
 
 score = answered = 0

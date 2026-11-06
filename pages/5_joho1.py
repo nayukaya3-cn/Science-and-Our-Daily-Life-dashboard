@@ -5,6 +5,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+import sister_sites as ss
 import tanpaku_core as tc
 import ui
 
@@ -55,3 +56,5 @@ i を 4 から 要素数(遺伝子) - 2 まで 3 ずつ増やしながら繰り�
     タンパク質 = タンパク質 + 暗号表[コドン]
 表示する(タンパク質)''', language="text")
     st.caption("先頭の3文字（開始コドン AUG）の次から、3文字ずつ読み進める。")
+
+ss.render("tanpaku", "joho1")
