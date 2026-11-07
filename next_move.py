@@ -87,12 +87,28 @@ HINTS: list[dict] = [
          strategy="点数は『目的に近づいているか』を測る道具。目的は『初めて見る問題でも使える考え方』だと決めておく。",
          tactics="正解した問題でも、理由を1行で説明できなければ『半分正解』として記録する。",
          p="P3", concerns=("勉強の進め方を決めたい",), explore=False),
+    dict(id="optimum", page="微生物と食生活", icon="🌡️", title="よく働く『温度』がある：上げすぎると止まる",
+         fact="酵母の気体の発生は 20℃ より 30℃ のほうが速いが、80℃ では 0 のまま（酵母のタンパク質＝酵素がこわれて止まる）。",
+         strategy="負荷は『多いほど良い』ではない。自分がいちばん進む条件（時間帯・量・休み方）を探し、限界を超える追い込みは避ける。",
+         tactics="同じ課題を『朝15分』と『夜15分』で1週間ずつ解き、進んだ量を比べる（ほかの条件はそろえる）。",
+         p="P2", concerns=("勉強の進め方を決めたい",), explore=True),
+    dict(id="purpose", page="微生物と食生活", icon="🦠", title="同じ出来事も、目的しだいで『発酵』にも『腐敗』にもなる",
+         fact="微生物が有機物を分解する現象は同じ。人間に役立てば発酵、不都合なら腐敗と呼ぶ。",
+         strategy="出来事に良い・悪いの札を貼る前に、自分の目的（設計図）を先に決める。目的が決まれば、失敗も材料に変わる。",
+         tactics="今週うまくいかなかったことを1つ選び、『目的から見て、何の材料に使えるか』を1行書く。",
+         p="P3", concerns=("進路・将来を考えたい", "苦手を何とかしたい"), explore=True),
+    dict(id="revise", page="終章 課題研究", icon="🔄", title="仮説が外れたら、理由を考えて仮説か方法を直す",
+         fact="課題研究では、仮説が検証されなかったとき、その理由を考察し、仮説や実験方法を修正する（ふり返る）。",
+         strategy="計画は一度で当てるものではなく、回して直すもの。外れた結果を捨てず、次の仮説の材料にする。",
+         tactics="今週の計画が外れたら、『仮説がちがった／方法がちがった』のどちらかに丸をつけ、直す1か所だけ書く。",
+         p="P3", concerns=CONCERNS, explore=False),
 ]
 
 # 各ページの最後に付ける「🏷️ 次の一手」タグ：ページのファイル名（番号・拡張子なし）→ ヒントの id
 PAGE_TAG = {
     "home": "material", "seibun": "predict", "amino": "limiting", "shoka": "minimum",
     "idenshi": "mutation", "joho1": "combination", "quiz": "goodhart", "field": "complement",
+    "biseibutsu": "optimum", "kadai": "revise",
 }
 
 BY_ID = {h["id"]: h for h in HINTS}
@@ -126,7 +142,7 @@ def plan_sheet(stage: str, concern: str, rows: dict[str, str]) -> str:
 
 def _self_check() -> None:
     ids = [h["id"] for h in HINTS]
-    assert len(ids) == len(set(ids)) == 12
+    assert len(ids) == len(set(ids)) == 15
     assert set(PAGE_TAG.values()) <= set(ids)
     assert all(c in CONCERNS for h in HINTS for c in h["concerns"])
     assert all(h["p"] in {"P1", "P2", "P3", "P4", "P5"} for h in HINTS)

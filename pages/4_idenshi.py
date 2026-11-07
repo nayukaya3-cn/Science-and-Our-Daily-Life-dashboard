@@ -38,7 +38,7 @@ for i in range(len(dna) // 3):
     chars = []
     for j, ch in enumerate(dna[3 * i:3 * i + 3]):
         hit = do_mutate and 3 * i + j + 1 == pos
-        chars.append(f"<b style='color:#d62728'>{ch}</b>" if hit else html.escape(ch))
+        chars.append(f"<b style='color:#d62728'>{html.escape(ch)}</b>" if hit else html.escape(ch))
     groups.append("".join(chars))
 st.markdown(f"<code style='font-size:15px'>{' '.join(groups)}</code>", unsafe_allow_html=True)
 

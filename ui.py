@@ -6,19 +6,22 @@
   - reading_card(): 読解カード（4項目）。全ページで同じ見た目・同じ言葉（背骨①＝共有エンコーダ）
   - predict(): 先に予想 → 答え → ずれ δ（背骨の「TD誤差が出る場面」。ログはセッションの中だけ）
   - next_move_tag(): ページの最後の「🏷️ 次の一手」タグ（人生戦略・戦術のヒント集への入口）
+  - teacher_gate(): 教員ページの鍵（合言葉は Secrets か環境変数。未設定なら開かない＝安全側）
 """
 from __future__ import annotations
 
 import html
+import os
 import random
 
 import streamlit as st
 
 import backbone as bb
+import guard
 import next_move as nm
 import tanpaku_core as tc
 
-API_VERSION = 3          # 画面部品の版。app.py が古いモジュールの読み込みを検出するのに使う
+API_VERSION = 4          # 画面部品の版。app.py が古いモジュールの読み込みを検出するのに使う
 EASY_KEY = "easy_mode"  # app.py のサイドバーのスイッチと共有
 TD_LOG_KEY = "td_log"   # 予想と実測のずれ（誤差ログ）。このセッションの中だけ
 
@@ -125,7 +128,7 @@ def predict(key: str, question: str, actual: float, unit: str, *, protocol: str 
             st.warning("少しずれた。どこで見込みがちがったか考えよう。")
         else:
             st.error("大きくずれた！ ここがいちばんの学びどころ。")
-        st.text_input("ずれの理由（1行：考え方／測り方／自然のばらつき）", key=f"why_{key}")
+        st.text_input("ずれの理由（1行：考え方／測り方／自然のばらつき）", key=f"why_{key}", max_chars=200)
         return rec
 
 
@@ -138,3 +141,54 @@ def next_move_tag(page_key: str) -> None:
                     unsafe_allow_html=True)
         st.markdown(f"**戦略**：{h['strategy']}  \n**戦術**：{h['tactics']}")
         st.caption("ほかのヒントと『次の一手シート』は、左メニュー「🚀 次の一手」へ（今後の人生戦略・戦術を立案する際のヒント集）。")
+
+
+TEACHER_OK_KEY = "teacher_ok"
+_TEACHER_TRIES = "teacher_tries"
+
+
+def _teacher_secret() -> str | None:
+    """合言葉：Streamlit の Secrets（teacher_passcode）→ 環境変数 TEACHER_PASSCODE の順に探す"""
+    try:
+        v = st.secrets.get("teacher_passcode")
+    except Exception:  # secrets.toml が無い環境（手元・テスト）
+        v = None
+    return v or os.environ.get("TEACHER_PASSCODE") or None
+
+
+def teacher_gate() -> bool:
+    """教員ページの鍵。True のときだけ中身を表示する。
+    - 合言葉が未設定（または8文字未満）なら、誰にも開かない（公開アプリで生徒が評価欄を見られないように）
+    - 間違いは1セッション guard.MAX_ATTEMPTS 回まで。比較は時間差で漏れない方法で行う
+    - 開いた状態はこのセッションの中だけ（保存しない）"""
+    secret = _teacher_secret()
+    if st.session_state.get(TEACHER_OK_KEY):
+        if st.sidebar.button("🔒 教員ページを閉じる", key="teacher_logout"):
+            st.session_state[TEACHER_OK_KEY] = False
+            st.rerun()
+        return True
+    with st.container(border=True):
+        st.markdown("### 🔒 教員向けページ（合言葉が必要です）")
+        if not secret or len(secret) < guard.MIN_PASSCODE_LEN:
+            st.warning("このアプリには教員用の合言葉が設定されていないため、教員ページは閉じています。"
+                       "管理者は Streamlit Community Cloud の **Settings → Secrets** に "
+                       "`teacher_passcode = \"8文字以上\"` を設定してください（手元では環境変数 TEACHER_PASSCODE でも可）。")
+            return False
+        tries = st.session_state.get(_TEACHER_TRIES, 0)
+        if tries >= guard.MAX_ATTEMPTS:
+            st.error("合言葉を続けて間違えたため、このセッションでは開けません。ページを開き直してください。")
+            return False
+        with st.form("teacher_login"):
+            given = st.text_input("合言葉", type="password", max_chars=128)
+            ok = st.form_submit_button("開く")
+        if ok:
+            if guard.passcode_ok(given, secret):
+                st.session_state[TEACHER_OK_KEY] = True
+                st.session_state[_TEACHER_TRIES] = 0
+                st.rerun()
+            st.session_state[_TEACHER_TRIES] = tries + 1
+            if tries + 1 >= guard.MAX_ATTEMPTS:
+                st.rerun()   # すぐに入力欄を消してロック表示に切りかえる
+            st.error(f"合言葉がちがいます（残り {guard.MAX_ATTEMPTS - tries - 1} 回）。")
+        st.caption("生徒向けのページは合言葉なしで使えます。教員ページの入力も、保存・送信はしません。")
+    return False
