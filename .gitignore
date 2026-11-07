@@ -7,3 +7,17 @@ __pycache__/
 # 教科書の写真・スキャンは著作物なのでリポジトリに入れない
 *.pdf
 textbook/
+# 秘密情報（教員ページの合言葉など）は Streamlit の Secrets か環境変数に置き、リポジトリには入れない
+.env
+.env.*
+secrets.toml
+# 教科書の紙面写真・配布データ（スマホ写真・ZIP・macOS の付随ファイル）
+*.jpg
+*.JPG
+*.jpeg
+*.JPEG
+*.heic
+*.HEIC
+IMG_*
+*.zip
+__MACOSX/

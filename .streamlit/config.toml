@@ -1,7 +1,11 @@
 # セキュリティ設定（公開アプリ用）
 [server]
-maxUploadSize = 10            # MB。このアプリはアップロードを使わないので小さく
+maxUploadSize = 1             # MB。このアプリはアップロードを使わないので最小に
+maxMessageSize = 50           # MB。1回の通信の上限（既定200）を小さくして過大な入力を防ぐ
 enableXsrfProtection = true   # クロスサイトリクエストフォージェリ対策（既定値を明示）
+enableCORS = true             # 他サイトからの読み込みを制限（既定値を明示。XSRF対策と組で必須）
+enableStaticServing = false   # static/ フォルダの公開をしない（意図しないファイル公開を防ぐ）
+runOnSave = false
 
 [client]
 showErrorDetails = "none"     # 画面にはエラーの詳細を出さない（内部情報の漏えい防止）。詳細はログへ

@@ -1,4 +1,5 @@
 # テスト：push・PRのたびに、計算部品の自己チェックと全ページの描画テストを実行
+# アクションはコミットSHAで固定（タグの付け替えによるサプライチェーン攻撃を防ぐ）。更新は Dependabot のPRで確認する
 name: ci
 
 on:
@@ -10,19 +11,32 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
           cache: pip
       - name: 依存ライブラリ
         run: pip install -r requirements.txt pytest
       - name: 計算部品の自己チェック
-        run: python tanpaku_core.py
-      - name: テスト（計算＋全ページの描画）
+        run: |
+          python tanpaku_core.py
+          python bisei_core.py
+          python kadai_core.py
+          python guard.py
+          python backbone.py
+          python next_move.py
+          python sister_sites.py
+      - name: テスト（計算＋全ページの描画＋保護）
         run: pytest -q

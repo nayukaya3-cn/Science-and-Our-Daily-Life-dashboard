@@ -4,34 +4,63 @@
 起動: streamlit run app.py
   ホームの中身は home.py、各ページは pages/、計算部品は tanpaku_core.py にあります。
 
-左メニューは「授業の流れ」の順に3つに束ねています（1つのまとまりは最大6ページ）。
+左メニューは「授業の流れ」の順に7つ（最後は「🚀 次の一手」）＋教員向け1つ（合言葉で保護）に束ねています（1つのまとまりは最大6ページ）。
 ページを足すときは NAV に1行足すだけです（ファイルが無い行は自動で飛ばします）。
 """
+import importlib
 from pathlib import Path
 
 import streamlit as st
 
+import backbone
+import bisei_core
+import guard
+import kadai_core
+import next_move
+import sister_sites as ss
+import tanpaku_core
 import ui
+
+# Streamlit Cloud は更新後も古いモジュールを読み込んだまま動くことがある（app.py だけ新しくなる）。
+# 画面部品の版が古ければ、依存の順（計算部品 → 背骨 → 画面部品）に読み直す。
+if getattr(ui, "API_VERSION", 0) < 4:
+    for _m in (tanpaku_core, bisei_core, kadai_core, guard, backbone, next_move, ss, ui):
+        importlib.reload(_m)
 
 ROOT = Path(__file__).parent
 MAX_PER_SECTION = 6
 
-st.set_page_config(page_title="体をつくるタンパク質", page_icon="🧬", layout="wide")
+st.set_page_config(page_title="科学と人間生活 × 情報Ⅰ（タンパク質・微生物・課題研究）", page_icon="🧬", layout="wide")
 
 # まとまり → [(ファイル, 表示名, アイコン)]
 NAV = {
     "🧬 はじめに": [
         ("home.py", "ホーム（教科書の問い）", "🏠"),
     ],
-    "📗 教科書 p.14〜15 を動かす": [
+    "📗 教科書 p.14〜19 を動かす": [
         ("pages/1_seibun.py", "体は何でできている？（図1）", "🧪"),
         ("pages/2_amino.py", "アミノ酸は20種類", "🔤"),
         ("pages/3_shoka.py", "消化→吸収→合成（図4）", "🍖"),
-        ("pages/4_idenshi.py", "遺伝子→タンパク質（図3）", "🧬"),
+        ("pages/4_idenshi.py", "遺伝子→タンパク質（図9・10）", "🧬"),
+    ],
+    "🦠 2章B 微生物と食生活": [
+        ("pages/10_biseibutsu.py", "微生物と発酵・実験2（温度）", "🦠"),
     ],
     "📝 教科×情報Ⅰ": [
         ("pages/5_joho1.py", "情報Ⅰとつなげる", "💻"),
         ("pages/6_quiz.py", "確認クイズ", "✅"),
+    ],
+    "🌾 フィールドワークへ": [
+        ("pages/7_field.py", "畑とパン工房につなげる", "🌾"),
+    ],
+    "🧭 終章 課題研究": [
+        ("pages/11_kadai.py", "課題研究の進め方・報告書", "🧭"),
+    ],
+    "🚀 次の一手": [
+        ("pages/9_next.py", "人生戦略・戦術のヒント集", "🚀"),
+    ],
+    "🧑‍🏫 教員向け（検証中）": [
+        ("pages/8_kyoin.py", "設計仮説H：背骨の検証", "🧭"),
     ],
 }
 
@@ -49,8 +78,16 @@ def build_nav() -> dict[str, list]:
 
 with st.sidebar:
     st.toggle("やさしい解説を表示（文系向け）", value=True, key=ui.EASY_KEY)
-    st.caption("科学と人間生活 第1部 生命の科学 1章A ① 体をつくるタンパク質")
-    st.caption("牛肉・魚・大豆・卵・ゼラチンの配列は説明用の架空データ。"
+    st.caption("科学と人間生活 第1部 1章A タンパク質（p.14〜19）→ 2章B 微生物と食生活（p.44〜49）→ 終章 課題研究（p.182〜）")
+    _n = len(st.session_state.get(getattr(ui, "TD_LOG_KEY", "td_log"), {}))
+    if _n:
+        st.caption(f"🎯 このセッションの予想：{_n} 件（ずれ δ は教員ページで一覧できます。保存はしません）")
+    st.caption("食品（牛肉・魚・大豆・卵・ゼラチン・小麦）の配列は説明用の架空データ。"
                "ヒトのインスリン・ヘモグロビンは実在の配列です。")
+    st.divider()
+    st.markdown("**🔗 姉妹サイト**")
+    _b = ss.SITES["bakery"]
+    st.link_button(f"{_b['icon']} {_b['name']} ↗", ss.url("bakery") or _b["repo"], width="stretch")
+    st.caption(_b["role"])
 
 st.navigation(build_nav()).run()
