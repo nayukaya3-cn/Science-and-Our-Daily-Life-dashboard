@@ -7,6 +7,7 @@
 import plotly.graph_objects as go
 import streamlit as st
 
+import guard
 import next_move as nm
 import ui
 
@@ -64,20 +65,20 @@ st.subheader("③ 次の一手シートを書く")
 ui.hint("全部を書かなくてよい。1つでも書けたら、それが『次の一手』。来週、予想とのずれを確かめよう。")
 top = ranked[0]
 rows = {
-    "戦略：これから選ぶこと／捨てること": st.text_area("🧭 戦略：これから選ぶこと／捨てること", key="nm_strategy",
+    "戦略：これから選ぶこと／捨てること": st.text_area(max_chars=guard.MAX_TEXT, label="🧭 戦略：これから選ぶこと／捨てること", key="nm_strategy",
                                          placeholder=f"例：{top['strategy']}"),
-    "必須アミノ酸：自分だけではつくれず、外から補うもの": st.text_input(
+    "必須アミノ酸：自分だけではつくれず、外から補うもの": st.text_input(max_chars=guard.MAX_TEXT, label=
         "🔤 自分の『必須アミノ酸』（自分だけでは身につかず、外から補うもの）", key="nm_essential",
         placeholder="例：英語の長文を読む速さ → 先生に添削してもらう"),
-    "補足効果：組み合わせる相手・教科": st.text_input("🫘 組み合わせる相手・教科（補足効果）", key="nm_partner",
+    "補足効果：組み合わせる相手・教科": st.text_input(max_chars=guard.MAX_TEXT, label="🫘 組み合わせる相手・教科（補足効果）", key="nm_partner",
                                           placeholder="例：情報Ⅰが得意な友だちと、理科基礎のグラフ問題を教え合う"),
-    "戦術：今週やること（1つだけ）": st.text_input("🛠️ 戦術：今週やること（1つだけ）", key="nm_tactics",
+    "戦術：今週やること（1つだけ）": st.text_input(max_chars=guard.MAX_TEXT, label="🛠️ 戦術：今週やること（1つだけ）", key="nm_tactics",
                                          placeholder=f"例：{top['tactics']}"),
-    "予想：来週どうなっているはずか": st.text_input("🎯 予想：来週どうなっているはず？（数字があればなおよい）", key="nm_predict",
+    "予想：来週どうなっているはずか": st.text_input(max_chars=guard.MAX_TEXT, label="🎯 予想：来週どうなっているはず？（数字があればなおよい）", key="nm_predict",
                                          placeholder="例：模試の第2問が 6点 → 9点"),
 }
 if any(rows.values()):
-    st.download_button("次の一手シートをテキストで保存", nm.plan_sheet(stage, concern, rows).encode("utf-8"),
+    st.download_button("次の一手シートをテキストで保存", guard.clean_text(nm.plan_sheet(stage, concern, rows), 10000).encode("utf-8"),
                        "次の一手シート.txt", "text/plain")
 else:
     st.caption("1つ書くと、シートを保存できます（保存は手元へのダウンロードだけ）。")

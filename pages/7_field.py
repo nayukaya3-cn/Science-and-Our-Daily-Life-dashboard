@@ -3,6 +3,7 @@ import pandas as pd
 import streamlit as st
 
 import backbone as bb
+import guard
 import sister_sites as ss
 import tanpaku_core as tc
 import ui
@@ -71,10 +72,10 @@ unit = st.selectbox("事前学習でつなぐ単元", BRIDGE["単元"].tolist())
 with st.container(border=True):
     st.markdown("**つながる教材**")
     ss.render_unit(unit, "tanpaku")
-    q = st.text_area("フィールドワークで確かめたい問い（自分の言葉で）", key="field_q",
+    q = st.text_area("フィールドワークで確かめたい問い（自分の言葉で）", key="field_q", max_chars=guard.MAX_TEXT,
                      placeholder="例：強力粉と薄力粉で、こねたときの伸び方はどれくらい違うのか")
     if q:
-        st.download_button("問いをテキストで保存", q.encode("utf-8"), "フィールドワークの問い.txt", "text/plain")
+        st.download_button("問いをテキストで保存", guard.clean_text(q).encode("utf-8"), "フィールドワークの問い.txt", "text/plain")
 
 st.subheader("④ 測る前に予想を書く（仮説シート項目5「予想グラフ」）")
 ui.hint("現場で測る前に『こうなるはず』を数字で書いておく。当日の実測とのずれ（δ）が、いちばんの学びどころになる。"
@@ -86,7 +87,7 @@ plan = st.data_editor(pd.DataFrame([{"場面": e["場面"], "プロトコル": e
                                      "プロトコル": st.column_config.SelectboxColumn(options=list(bb.PROTOCOLS))})
 if plan["予想"].notna().all():
     plan["実測（当日に記入）"] = ""
-    st.download_button("予想シートをCSVで保存（野帳に貼る）", plan.to_csv(index=False).encode("utf-8-sig"),
+    st.download_button("予想シートをCSVで保存（野帳に貼る）", guard.csv_safe(plan).to_csv(index=False).encode("utf-8-sig"),
                        "FW予想シート.csv", "text/csv")
 else:
     st.caption("4つの場面すべてに予想を書くと、野帳に貼るCSVを保存できます。")

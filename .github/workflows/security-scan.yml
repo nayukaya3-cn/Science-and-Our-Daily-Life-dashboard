@@ -17,16 +17,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
       - name: 依存ライブラリの既知の脆弱性（pip-audit）
         run: |
-          pip install -q pip-audit
+          pip install -q "pip-audit==2.10.1"
           pip-audit -r requirements.txt --desc
       - name: コードの危険なパターン（bandit）
         run: |
-          pip install -q bandit
+          pip install -q "bandit==1.9.4"
           # B311（random）は教材の乱数で暗号用途ではない、B101（assert）は自己チェック用のため除外
           bandit -q -r . -x ./tests,./.venv --skip B311,B101

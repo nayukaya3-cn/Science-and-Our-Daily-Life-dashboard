@@ -10,7 +10,7 @@ sys.path.insert(0, str(ROOT))
 import backbone as bb  # noqa: E402
 import tanpaku_core as tc  # noqa: E402
 
-STUDENT_PAGES = ["1_seibun", "2_amino", "3_shoka", "4_idenshi", "5_joho1", "7_field"]
+STUDENT_PAGES = ["1_seibun", "2_amino", "3_shoka", "4_idenshi", "5_joho1", "7_field", "10_biseibutsu", "11_kadai"]
 
 
 def _run(page, monkeypatch):
@@ -62,7 +62,13 @@ def test_prediction_records_td_error(monkeypatch):
 
 
 def test_teacher_page_judgement(monkeypatch):
-    at = _run("pages/8_kyoin.py", monkeypatch)
+    monkeypatch.chdir(ROOT)
+    monkeypatch.syspath_prepend(str(ROOT))
+    at = AppTest.from_file(str(ROOT / "pages/8_kyoin.py"), default_timeout=60)
+    at.secrets["teacher_passcode"] = "test-passcode-123"
+    at.run()
+    at.text_input[0].input("test-passcode-123")
+    at.button[0].click().run()
     assert not at.exception
     at.radio(key="pred_res_①").set_value("支持").run()
     at.radio(key="pred_res_②").set_value("支持").run()
