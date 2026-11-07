@@ -13,6 +13,19 @@
 | CI | GitHub Actions はコミットSHAで固定、トークンは読み取りのみ・checkout で資格情報を残さない。pip-audit・bandit・CodeQL を実行 | `.github/workflows/` |
 | ブランチ | `main` はルールセットで保護：削除・強制pushの禁止、PR必須、`test`・`scan` の成功が必須 | GitHub の Settings → Rules |
 
+## GitHub 側の設定（リポジトリ管理者が画面で行う）
+
+ルールセット `marukusu_20261108` は作成済みですが、**無効（Disabled）で対象ブランチも空**のため、まだ何も守っていません。
+`.github/rulesets/main-protection.json` が完成形です。
+
+1. Settings → Rules → Rulesets → `marukusu_20261108` を開く（または「New ruleset → Import a ruleset」で上のJSONを読み込む）
+2. Enforcement status を **Active**、Target branches に **Include default branch**
+3. Rules：Restrict deletions・Block force pushes（設定済み）に加えて、**Require a pull request before merging**（承認数0）と
+   **Require status checks to pass**（`test`・`scan`、Require branches to be up to date）をオン
+4. Settings → Advanced Security：**Dependabot alerts**・**Dependabot security updates**・**Private vulnerability reporting** をオン
+5. Settings → Actions → General → Workflow permissions を **Read repository contents** にする
+6. Settings → General：**Automatically delete head branches** をオン
+
 ## 合言葉の設定
 
 Streamlit Community Cloud の **Settings → Secrets** に `teacher_passcode = "8文字以上"` を書きます。
