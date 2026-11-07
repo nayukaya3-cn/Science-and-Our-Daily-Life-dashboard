@@ -10,7 +10,6 @@
 """
 from __future__ import annotations
 
-import hashlib
 import hmac
 import unicodedata
 
@@ -24,9 +23,7 @@ def passcode_ok(given: str, secret: str | None) -> bool:
     """合言葉が一致するか。secret が未設定・短すぎるときは常に False（安全側に倒す）"""
     if not secret or len(secret) < MIN_PASSCODE_LEN or not given:
         return False
-    a = hashlib.sha256(given.encode("utf-8")).digest()
-    b = hashlib.sha256(secret.encode("utf-8")).digest()
-    return hmac.compare_digest(a, b)
+    return hmac.compare_digest(given.encode("utf-8"), secret.encode("utf-8"))
 
 
 def clean_text(s: str | None, max_len: int = MAX_TEXT) -> str:

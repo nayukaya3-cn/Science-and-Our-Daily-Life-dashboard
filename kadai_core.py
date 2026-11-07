@@ -84,13 +84,29 @@ SAFETY = (
 )
 
 _WEB = re.compile(r"https?://\S+")
-_DATE = re.compile(r"(\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*日|\d{4}[-/]\d{1,2}[-/]\d{1,2})")
-_YEAR = re.compile(r"[（(]\s*\d{4}\s*年?\s*[）)]")
+_DATE = re.compile(r"(\d{4}年\d{1,2}月\d{1,2}日|\d{4}[-/]\d{1,2}[-/]\d{1,2})")   # 空白は先に取り除く
+_YEAR = re.compile(r"[（(]\d{4}年?[）)]")
+_PUBLISHER_WORDS = ("社", "書店", "出版", "館", "会", "大学")
+MAX_REF = 300   # 1行の長さの上限（長すぎる入力で正規表現が遅くならないように）
+
+
+def _parens(s: str) -> list[str]:
+    """（…）・(…) の中身を順に取り出す（正規表現を使わない一回なめ）"""
+    out, buf, depth = [], [], 0
+    for ch in s:
+        if ch in "（(":
+            depth, buf = 1, []
+        elif ch in "）)" and depth:
+            out.append("".join(buf))
+            depth = 0
+        elif depth:
+            buf.append(ch)
+    return out
 
 
 def check_reference(ref: str) -> list[str]:
     """参考文献1行を p.184 の書き方の例と照らし、足りないものを返す（空なら合格）"""
-    r = ref.strip()
+    r = "".join(ref.split())[:MAX_REF]   # 空白を除き、長さを制限
     if not r:
         return ["空欄です"]
     missing = []
@@ -106,7 +122,7 @@ def check_reference(ref: str) -> list[str]:
         missing.append("出版年（例：(2024年)）")
     if "『" not in r:
         missing.append("『書名』または『雑誌名』")
-    if "「" not in r and not re.search(r"[（(][^）)]*(社|書店|出版|館|会|大学)[^）)]*[）)]", r):
+    if "「" not in r and not any(w in seg for seg in _parens(r) for w in _PUBLISHER_WORDS):
         missing.append("（出版社）")
     return missing
 
