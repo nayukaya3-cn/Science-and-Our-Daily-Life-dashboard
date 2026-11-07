@@ -5,6 +5,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+import sister_sites as ss
 import tanpaku_core as tc
 import ui
 
@@ -12,6 +13,17 @@ ui.hero("教科×情報Ⅰ", "💻 タンパク質は『20種類の文字で書�
         "場合の数・情報量（ビット）・文字列・辞書。情報Ⅰの道具で、生物のしくみを読み直そう。")
 ui.hint("アミノ酸が20種類あると、並べ方の数は爆発的に増える。"
         "これで、約10万種類のタンパク質を区別できる理由がわかる。")
+
+ui.reading_card(
+    axis="横＝アミノ酸の個数 n、縦＝並べ方の数（10の何乗か）", unit="縦軸は『10の何乗』（対数目盛）。1目盛で10倍",
+    control="アミノ酸の種類（20）は固定し、変えるのは個数 n だけ",
+    can="4個並ぶだけで 20⁴＝16万通り。約10万種類を区別するには十分",
+    cannot="実際のタンパク質が、すべての並び方を使っている（並べ方の数は『区別できる上限』にすぎない）",
+    protocols=["P2", "P4"], material="20ⁿ のグラフ（情報Ⅰ第4問のグラフ読解と同じ型）")
+
+need = next(k for k in range(1, 10) if 20 ** k >= 100_000)
+answered = ui.predict("joho1_n", "**ヒトのタンパク質 約10万種類を区別するには、アミノ酸が最低何個並べばよい？**",
+           need, "個", protocol="P1", min_value=1.0, max_value=100.0, value=10.0)
 
 n = st.slider("アミノ酸の個数 n", 1, 100, 30)
 c1, c2, c3 = st.columns(3)
@@ -26,7 +38,8 @@ fig.add_hline(y=5, line_dash="dash", annotation_text="ヒトのタンパク質 �
 fig.add_vline(x=n, line_color="red")
 fig.update_layout(height=340, margin=dict(t=20))
 st.plotly_chart(fig, width="stretch")
-st.caption("アミノ酸が4個並ぶだけで 20⁴＝16万通り。10万種類を区別するには十分。")
+if answered:
+    st.caption("アミノ酸が4個並ぶだけで 20⁴＝16万通り（3個では 8000通りで足りない）。10万種類を区別するには十分。")
 
 st.subheader("生物と情報の対応表")
 st.table(pd.DataFrame({
@@ -55,3 +68,7 @@ i を 4 から 要素数(遺伝子) - 2 まで 3 ずつ増やしながら繰り�
     タンパク質 = タンパク質 + 暗号表[コドン]
 表示する(タンパク質)''', language="text")
     st.caption("先頭の3文字（開始コドン AUG）の次から、3文字ずつ読み進める。")
+
+ss.render("tanpaku", "joho1")
+
+ui.next_move_tag("joho1")
