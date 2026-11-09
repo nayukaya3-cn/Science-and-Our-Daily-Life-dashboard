@@ -5,6 +5,8 @@
   - chain_html(): アミノ酸を色つきの丸で並べる（教科書の図3・図4のイメージ）
   - reading_card(): 読解カード（4項目）。全ページで同じ見た目・同じ言葉（背骨①＝共有エンコーダ）
   - predict(): 先に予想 → 答え → ずれ δ（背骨の「TD誤差が出る場面」。ログはセッションの中だけ）
+  - exam_question(): 共通テスト型問題（1問）。P1〜P5 のラベルつきで、選ぶと解説が出る
+  - lesson_plan(): 単元の構成（コマ割り）を折りたたんで見せる（先生向けの情報を、生徒の画面のじゃまにしない）
   - next_move_tag(): ページの最後の「🏷️ 次の一手」タグ（人生戦略・戦術のヒント集への入口）
   - teacher_gate(): 教員ページの鍵（合言葉は Secrets か環境変数。未設定なら開かない＝安全側）
 """
@@ -21,7 +23,7 @@ import guard
 import next_move as nm
 import tanpaku_core as tc
 
-API_VERSION = 4          # 画面部品の版。app.py が古いモジュールの読み込みを検出するのに使う
+API_VERSION = 5          # 画面部品の版。app.py が古いモジュールの読み込みを検出するのに使う
 EASY_KEY = "easy_mode"  # app.py のサイドバーのスイッチと共有
 TD_LOG_KEY = "td_log"   # 予想と実測のずれ（誤差ログ）。このセッションの中だけ
 
@@ -130,6 +132,27 @@ def predict(key: str, question: str, actual: float, unit: str, *, protocol: str 
             st.error("大きくずれた！ ここがいちばんの学びどころ。")
         st.text_input("ずれの理由（1行：考え方／測り方／自然のばらつき）", key=f"why_{key}", max_chars=200)
         return rec
+
+
+def exam_question(key: str, item: dict) -> bool | None:
+    """共通テスト型問題を1問出す。item＝dict(p, subject, q, opts, ans, exp)。
+    正解なら True、不正解なら False、まだ選んでいなければ None。回答は保存・送信しない"""
+    st.markdown(_CSS, unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown(f"**📝 共通テスト型問題**（{html.escape(item['subject'])}）　{badges([item['p']])}", unsafe_allow_html=True)
+        choice = st.radio(item["q"], item["opts"], index=None, key=f"exam_{key}")
+        if choice is None:
+            st.caption("読解カードの4項目（とくに③ 何をそろえ、何を変えたか）で読んでから選ぼう。")
+            return None
+        ok = choice == item["ans"]
+        (st.success if ok else st.error)(("正解！ " if ok else f"ざんねん。正解は「{item['ans']}」。") + item["exp"])
+        return ok
+
+
+def lesson_plan(rows: list[dict], title: str = "🧑‍🏫 先生向け：単元の構成（コマ割り）") -> None:
+    """コマ割りの表。生徒の画面では閉じておく"""
+    with st.expander(title):
+        st.dataframe(rows, hide_index=True, width="stretch")
 
 
 def next_move_tag(page_key: str) -> None:

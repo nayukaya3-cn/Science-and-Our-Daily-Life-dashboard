@@ -4,7 +4,8 @@
 起動: streamlit run app.py
   ホームの中身は home.py、各ページは pages/、計算部品は tanpaku_core.py にあります。
 
-左メニューは「授業の流れ」の順に7つ（最後は「🚀 次の一手」）＋教員向け1つ（合言葉で保護）に束ねています（1つのまとまりは最大6ページ）。
+左メニューは「授業の流れ」の順に束ねています（生命の科学 → 熱・物質・地球の科学 → 情報Ⅰ → FW → 終章 → 次の一手）。
+最後に「学校に合わせて使う」（特別支援学校版）と、教員向け1つ（合言葉で保護）。1つのまとまりは最大6ページ。
 ページを足すときは NAV に1行足すだけです（ファイルが無い行は自動で飛ばします）。
 """
 import importlib
@@ -16,21 +17,27 @@ import backbone
 import bisei_core
 import guard
 import kadai_core
+import kuko_core
+import netsu_core
 import next_move
+import shinro_core
 import sister_sites as ss
+import sozai_core
 import tanpaku_core
+import tokushi_core
 import ui
 
 # Streamlit Cloud は更新後も古いモジュールを読み込んだまま動くことがある（app.py だけ新しくなる）。
 # 画面部品の版が古ければ、依存の順（計算部品 → 背骨 → 画面部品）に読み直す。
-if getattr(ui, "API_VERSION", 0) < 4:
-    for _m in (tanpaku_core, bisei_core, kadai_core, guard, backbone, next_move, ss, ui):
+if getattr(ui, "API_VERSION", 0) < 5:
+    for _m in (tanpaku_core, bisei_core, kadai_core, netsu_core, sozai_core, kuko_core, shinro_core, tokushi_core,
+               guard, backbone, next_move, ss, ui):
         importlib.reload(_m)
 
 ROOT = Path(__file__).parent
 MAX_PER_SECTION = 6
 
-st.set_page_config(page_title="科学と人間生活 × 情報Ⅰ（タンパク質・微生物・課題研究）", page_icon="🧬", layout="wide")
+st.set_page_config(page_title="科学と人間生活 × 情報Ⅰ（生命・熱・物質・地球・課題研究）", page_icon="🧬", layout="wide")
 
 # まとまり → [(ファイル, 表示名, アイコン)]
 NAV = {
@@ -46,6 +53,12 @@ NAV = {
     "🦠 2章B 微生物と食生活": [
         ("pages/10_biseibutsu.py", "微生物と発酵・実験2（温度）", "🦠"),
     ],
+    "🔥 熱・物質・地球の科学": [
+        ("pages/12_netsu.py", "熱：石焼き芋と石窯パン", "🍠"),
+        ("pages/13_plastic.py", "プラスチック：3Dプリンタの糸", "🖨️"),
+        ("pages/14_iryo.py", "衣料と微生物：デニム・帆布と水", "👖"),
+        ("pages/15_kuko.py", "広島空港：霧と着陸", "✈️"),
+    ],
     "📝 教科×情報Ⅰ": [
         ("pages/5_joho1.py", "情報Ⅰとつなげる", "💻"),
         ("pages/6_quiz.py", "確認クイズ", "✅"),
@@ -55,9 +68,13 @@ NAV = {
     ],
     "🧭 終章 課題研究": [
         ("pages/11_kadai.py", "課題研究の進め方・報告書", "🧭"),
+        ("pages/16_shinro.py", "3Dプリンター×ロボットで進路探究", "🤖"),
     ],
     "🚀 次の一手": [
         ("pages/9_next.py", "人生戦略・戦術のヒント集", "🚀"),
+    ],
+    "🏫 学校に合わせて使う": [
+        ("pages/17_tokushi.py", "特別支援学校版（作業学習・体験実習）", "🤝"),
     ],
     "🧑‍🏫 教員向け（検証中）": [
         ("pages/8_kyoin.py", "設計仮説H：背骨の検証", "🧭"),
@@ -78,7 +95,8 @@ def build_nav() -> dict[str, list]:
 
 with st.sidebar:
     st.toggle("やさしい解説を表示（文系向け）", value=True, key=ui.EASY_KEY)
-    st.caption("科学と人間生活 第1部 1章A タンパク質（p.14〜19）→ 2章B 微生物と食生活（p.44〜49）→ 終章 課題研究（p.182〜）")
+    st.caption("科学と人間生活 第1部 1章A タンパク質（p.14〜19）→ 2章B 微生物と食生活（p.44〜49）→ "
+               "熱・プラスチック・衣料・広島空港（地域の教材）→ 終章 課題研究（p.182〜）")
     _n = len(st.session_state.get(getattr(ui, "TD_LOG_KEY", "td_log"), {}))
     if _n:
         st.caption(f"🎯 このセッションの予想：{_n} 件（ずれ δ は教員ページで一覧できます。保存はしません）")

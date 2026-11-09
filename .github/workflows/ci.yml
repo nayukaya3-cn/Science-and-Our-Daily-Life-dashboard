@@ -34,6 +34,11 @@ jobs:
           python tanpaku_core.py
           python bisei_core.py
           python kadai_core.py
+          python netsu_core.py
+          python sozai_core.py
+          python kuko_core.py
+          python shinro_core.py
+          python tokushi_core.py
           python guard.py
           python backbone.py
           python next_move.py
