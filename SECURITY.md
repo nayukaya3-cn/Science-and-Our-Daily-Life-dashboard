@@ -7,6 +7,7 @@
 | 教員ページ | **合言葉で保護**。未設定・8文字未満なら誰にも開かない（安全側）。比較は時間差で漏れない方法（`hmac.compare_digest`）、1セッション5回まちがえるとロック | `ui.teacher_gate()`・`guard.py` |
 | 入力 | 入力欄に文字数の上限。ダウンロードするテキストから制御文字を除去 | `guard.clean_text()` |
 | CSV | `=`・`+`・`-`・`@` で始まるセルの先頭に `'` を付け、表計算ソフトで数式として実行されないようにする（CSVインジェクション対策） | `guard.csv_safe()`（FW予想シート） |
+| 個人情報 | 特別支援学校版・進路ワークのページには、名前・写真・障害に関する情報の入力欄を置かない。記録表は「カード×場面×支援の量」だけ（テストで確認） | `pages/17_tokushi.py`・`tests/test_chiiki.py` |
 | 画面 | HTML を出す箇所はすべて `html.escape` を通し、入力値を直接埋め込まない（テストで確認） | `ui.py`・`tests/test_security.py` |
 | サーバー設定 | XSRF・CORS を明示的に有効、static 公開なし、アップロード上限1MB、エラー詳細を表示しない、開発者メニューを隠す | `.streamlit/config.toml` |
 | 著作物・秘密 | 教科書の写真（jpg/heic/IMG_*）・PDF・ZIP・`.env`・`secrets.toml` をリポジトリに入れない（.gitignore とテスト） | `.gitignore`・`tests/test_security.py` |

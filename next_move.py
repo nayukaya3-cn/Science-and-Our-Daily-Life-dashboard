@@ -109,6 +109,8 @@ PAGE_TAG = {
     "home": "material", "seibun": "predict", "amino": "limiting", "shoka": "minimum",
     "idenshi": "mutation", "joho1": "combination", "quiz": "goodhart", "field": "complement",
     "biseibutsu": "optimum", "kadai": "revise",
+    # 2026-11 追加：熱・プラスチック・衣料と水・空港・終章（進路）。特別支援学校版は先生向けなのでタグなし
+    "netsu": "optimum", "plastic": "card", "iryo": "purpose", "kuko": "minimum", "shinro": "explore",
 }
 
 BY_ID = {h["id"]: h for h in HINTS}
