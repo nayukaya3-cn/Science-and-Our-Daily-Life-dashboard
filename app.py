@@ -5,7 +5,7 @@
   ホームの中身は home.py、各ページは pages/、計算部品は tanpaku_core.py にあります。
 
 左メニューは「授業の流れ」の順に束ねています（生命の科学 → 熱・物質・地球の科学 → 情報Ⅰ → FW → 終章 → 次の一手）。
-最後に「学校に合わせて使う」（特別支援学校版）と、教員向け1つ（合言葉で保護）。1つのまとまりは最大6ページ。
+最後に「学校に合わせて使う」（特別支援学校版・AI伴走ワーク）と、教員向け1つ（合言葉で保護）。1つのまとまりは最大6ページ。
 ページを足すときは NAV に1行足すだけです（ファイルが無い行は自動で飛ばします）。
 """
 import importlib
@@ -13,6 +13,7 @@ from pathlib import Path
 
 import streamlit as st
 
+import ai_core
 import backbone
 import bisei_core
 import guard
@@ -31,7 +32,7 @@ import ui
 # 画面部品の版が古ければ、依存の順（計算部品 → 背骨 → 画面部品）に読み直す。
 if getattr(ui, "API_VERSION", 0) < 5:
     for _m in (tanpaku_core, bisei_core, kadai_core, netsu_core, sozai_core, kuko_core, shinro_core, tokushi_core,
-               guard, backbone, next_move, ss, ui):
+               ai_core, guard, backbone, next_move, ss, ui):
         importlib.reload(_m)
 
 ROOT = Path(__file__).parent
@@ -75,6 +76,7 @@ NAV = {
     ],
     "🏫 学校に合わせて使う": [
         ("pages/17_tokushi.py", "特別支援学校版（作業学習・体験実習）", "🤝"),
+        ("pages/18_ai.py", "AIを自分の武器にする（伴走ワーク）", "🧰"),
     ],
     "🧑‍🏫 教員向け（検証中）": [
         ("pages/8_kyoin.py", "設計仮説H：背骨の検証", "🧭"),
