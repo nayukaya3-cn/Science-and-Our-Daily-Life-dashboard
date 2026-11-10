@@ -6,6 +6,7 @@
 import datetime as dt
 
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 import guard
@@ -23,6 +24,7 @@ age = c1.number_input("いまの年齢", 12, 80, 16, 1, key="shinro_age")
 this_year = dt.date.today().year
 c2.metric(f"{sh.TARGET_YEAR}年のあなた", f"{sh.age_in(sh.TARGET_YEAR, this_year, int(age))} 歳",
           f"国の導入目標：{sh.TARGET_YEAR}年までに18分野で{sh.TARGET_UNITS}", delta_color="off", delta_arrow="off")
+st.caption("この問いに、決まった正解はない。大人も、学びながら答えを探している ─ 作成者が受講中の講座を、⑤『学びの実例』に載せた。")
 with st.expander("18分野を見る"):
     st.markdown("、".join(sh.FIELDS_18))
     st.caption("国の戦略の公開資料（2026年時点）による。目標や分野は改定されることがあるので、授業で使う前に最新の資料で確かめる。")
@@ -30,8 +32,8 @@ with st.expander("18分野を見る"):
 ui.lesson_plan([{"順": n, "段階": s, "コマ数": k, "内容": c} for n, s, k, c in sh.FLOW],
                "🧑‍🏫 先生向け：終章の進め方（全体14コマ＋校外1日）")
 
-tab1, tab2, tab3, tab4 = st.tabs(["① 導入実習：問いの種を集める", "② テーマをえらぶ（17テーマ）",
-                                  "③ ロボットとの6つの関わり方・進路ワーク", "④ 安全・特別教育（先生向け）"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["① 導入実習", "② テーマをえらぶ（17）", "③ 6つの関わり方・進路ワーク",
+                                        "④ 安全・特別教育（先生向け）", "⑤ 学びの実例"])
 
 # ── ① 導入実習 ─────────────────────────────
 with tab1:
@@ -126,5 +128,50 @@ with tab4:
     st.dataframe(pd.DataFrame(sh.TRAINING, columns=["段階", "対象", "内容", "修了証"]), hide_index=True, width="stretch")
     st.error("**未確定事項（実施前に必ず確認）**  \n" + "  \n".join(f"- {s}" for s in sh.TRAINING_NOTES))
     st.caption("普通科・商業科での現実解：①は校内、②は外部連携。校内で正式な修了証まで出すには、指導できる教員と産業用ロボットの実機が必要になる。")
+
+# ── ⑤ 学びの実例 ─────────────────────────────
+with tab5:
+    today = dt.date.today()
+    st.markdown(f"#### 大人も同じ問いの途中にいる：{sh.COURSE_NAME}（作成者が学習中）")
+    st.caption("教える側も、学び終えた人ではなく学んでいる途中の人。講座の見出しを『6つの関わり方』に当てはめると、"
+               "いまの学びがどの立ち位置を厚くしていて、どこがうすいかが見える。同じことを、自分の時間割や習いごとでもやってみよう。")
+    nxt = sh.next_lecture(today)
+    done = sum(1 for x in sh.LECTURES if sh.lecture_status(*x[2], today) == "済")
+    m1, m2, m3 = st.columns(3)
+    m1.metric("受講の進み", f"{done} / {len(sh.LECTURES)} 回")
+    m2.metric(f"次回（{nxt[0]} 第{nxt[1]}回）" if nxt else "次回", f"{nxt[2][0]}/{nxt[2][1]}（木）" if nxt else "全回終了")
+    m3.metric(f"{sh.TARGET_YEAR}年まで", f"あと {max(0, sh.TARGET_YEAR - today.year)} 年")
+
+    st.markdown("**3つの編のつながり**：基礎編（ロボットがどう学ぶか）→ 応用編1（現場で動かし続ける）→ 応用編2（体を数式で表す）")
+    for col, (part, (about, plain)) in zip(st.columns(3), sh.COURSE_PARTS.items()):
+        with col.container(border=True):
+            n_all = sum(1 for x in sh.LECTURES if x[0] == part)
+            n_done = sum(1 for x in sh.LECTURES if x[0] == part and sh.lecture_status(*x[2], today) == "済")
+            st.markdown(f"**{part}**")
+            st.markdown(f"{about}  \n高校の言葉で：{plain}")
+            st.progress(n_done / n_all, text=f"{n_done} / {n_all} 回")
+
+    part = st.radio("編をえらぶ", list(sh.COURSE_PARTS), index=len(sh.COURSE_PARTS) - 1, horizontal=True, key="shinro_course_part")
+    st.dataframe(pd.DataFrame(sh.lectures_of(part, today)), hide_index=True, width="stretch")
+
+    st.markdown("#### この学びは、6つの立ち位置のどこを厚くしているか")
+    cov = sh.role_coverage()
+    top = max(cov.values())
+    fig = go.Figure(go.Bar(x=list(cov), y=list(cov.values()), text=list(cov.values()), textposition="outside",
+                           marker_color=["#4a6a8a" if v == top else "#a9bccf" for v in cov.values()]))
+    fig.update_layout(height=300, margin=dict(t=20, b=10, l=10, r=10), yaxis=dict(title="あてはまる講義の回数", range=[0, top + 1.5]),
+                      xaxis=dict(title="ロボットとの6つの関わり方"))
+    st.plotly_chart(fig, width="stretch")
+    st.info(sh.coverage_comment(), icon="🧭")
+    ui.reading_card(
+        axis="6つの立ち位置 × あてはまる講義の回数", unit="回（1回の講義が2つの立ち位置にあたることもある）",
+        control="そろえた：同じ講座の日程表の見出しだけで数えた。変えた：立ち位置",
+        can="この講座の見出しは『つくる』にあたるものがいちばん多い",
+        cannot="受講者が『つくる側』になれるか・回数の多い立ち位置が自分に向いているか（当てはめは作成者の見立て。"
+               "講義の深さや、講座の外での経験は数えていない）",
+        protocols=["P2", "P3"], material="上の棒グラフ")
+    with st.expander("この実例の読み方（出どころと限界）"):
+        for n in sh.COURSE_NOTES:
+            st.markdown(f"- {n}")
 
 ui.next_move_tag("shinro")
