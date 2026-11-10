@@ -117,3 +117,14 @@ def test_tokushi_page_asks_for_no_personal_data(monkeypatch):
     assert "名前" not in labels and "氏名" not in labels
     at.radio(key="tokushi_guess").set_value("🟦 冷蔵庫").run()
     assert any("なぜだろう" in w.value for w in at.warning)
+
+
+def test_shinro_course_example(monkeypatch):
+    """学びの実例（Physical AI講座）：見出しだけを載せ（講座サイトの画面は入れない）、偏りを言葉にする"""
+    at = _run(NEW_PAGES["shinro"], monkeypatch)
+    assert not at.exception and len(at.tabs) == 5
+    assert not list((ROOT / "docs/img").glob("physical_ai*")) and len(at.get("imgs")) == 0
+    assert any("つくる" in i.value for i in at.info)
+    at.radio(key="shinro_course_part").set_value("基礎編").run()
+    assert not at.exception
+    assert sh.role_coverage()["つくる"] == 8 and len(sh.LECTURES) == 18

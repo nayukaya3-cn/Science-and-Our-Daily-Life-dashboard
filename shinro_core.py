@@ -16,6 +16,8 @@ Streamlit に依存しない。`python shinro_core.py` で自己チェック。
 """
 from __future__ import annotations
 
+import datetime as dt
+
 TARGET_YEAR = 2040
 TARGET_UNITS = "1,000万台規模"
 
@@ -203,6 +205,83 @@ SAFETY = (
 FIRST_STEP = "テーマNo.4（充填率と強さ）を1コマで試し、理科基礎の対照実験や情報Ⅰ第4問の散布図と同じ考え方で解けるかを確かめる。"
 
 
+# ─────────────────────────────────────────────
+# 学びの実例：作成者が受講中の「Physical AI講座 2026」（基礎編 → 応用編1 → 応用編2）
+#   大人も同じ問い（2040年、ロボットのどちら側にいるか）に、学びながら答えを探している、という実例。
+#   載せるのは日程表の見出し（題と日付）だけ。講義の中身（スライド・動画・課題）は載せない。
+#   「立ち位置」「高校での入口」は作成者の見立て（講座の公式な分類ではない）。
+# ─────────────────────────────────────────────
+COURSE_NAME = "Physical AI講座 2026"
+COURSE_YEAR = 2026
+#   編: (ひとことで, 高校の言葉で言うと)
+COURSE_PARTS: dict[str, tuple[str, str]] = {
+    "基礎編": ("ロボットがどう学ぶか（全7回＋最終課題）", "AIが手本やごほうびから上達するしくみ"),
+    "応用編1": ("学んだAIを現場で動かし続けるしくみ（全6回）", "つくった後の、運用・通信・共同開発"),
+    "応用編2": ("ロボットの体を数式で表す（第5回まで確認）", "座標・運動・力 ─ 物理基礎と数学の出番"),
+}
+#   (編, 回, (月, 日), 題, 立ち位置, 高校での入口)
+LECTURES: list[tuple[str, int, tuple[int, int], str, tuple[str, ...], str]] = [
+    ("基礎編", 1, (6, 25), "Physical AIの概要", ("決める",), "導入第6コマ：AIロボットと人間の仕事"),
+    ("基礎編", 2, (7, 2), "Physical AIの活用", ("決める", "つなぐ"), "18分野・職業の事例を読解カードで読む"),
+    ("基礎編", 3, (7, 9), "Physical AIの学習（模倣学習）", ("つくる",), "導入第5コマ：教示（手本を見せて覚えさせる）"),
+    ("基礎編", 4, (7, 16), "Physical AIの学習（強化学習）", ("つくる",), "予想 → ずれ（δ）で直す。『次の一手』の探索と活用"),
+    ("基礎編", 5, (7, 23), "スケーリングとアーキテクチャ", ("つくる",), "情報Ⅰ：モデル化、データの量と計算"),
+    ("基礎編", 6, (7, 30), "実世界データの収集", ("使う", "つなぐ"), "圃場での記録（軸・単位・そろえるもの）。テーマNo.14"),
+    ("基礎編", 7, (8, 6), "Physical AIの実運用", ("直す", "守る"), "導入第4コマ：リスク＝起こりやすさ×被害"),
+    ("応用編1", 1, (9, 3), "MLOps・RobOps導入", ("直す",), "つくった後に、動かし続ける・直し続ける仕事がある"),
+    ("応用編1", 2, (9, 10), "MLOps・RobOps実践", ("直す",), "課題研究の『ふり返る』矢印（記録して、直す）"),
+    ("応用編1", 3, (9, 17), "コンピュータアーキテクチャ（メモリ・通信・仮想化・デバイスの管理）", ("つくる",), "情報Ⅰ：コンピュータのしくみ・ネットワーク"),
+    ("応用編1", 4, (9, 24), "ROS2入門(1/2)", ("つなぐ",), "導入第4コマの発展：ROS 2 のシミュレータ"),
+    ("応用編1", 5, (10, 1), "ROS2入門(2/2)", ("つなぐ",), "テーマNo.13：教示点の数と、時間・正確さ"),
+    ("応用編1", 6, (10, 8), "Open Source in Robotics", ("つなぐ", "守る"), "情報Ⅰ：著作権・ライセンス。課題研究の引用"),
+    ("応用編2", 1, (11, 12), "イントロダクション（ロボティクス分野の全体）", ("決める",), "6つの関わり方の全体地図"),
+    ("応用編2", 2, (11, 19), "空間の記述と変換（ロボットの位置・姿勢、座標系）", ("つくる",), "導入第1コマ：3Dデータ＝座標の列"),
+    ("応用編2", 3, (11, 26), "運動学（力を考えないロボット運動の記述と計算）", ("つくる",), "物理基礎：速度・変位。テーマNo.13"),
+    ("応用編2", 4, (12, 3), "動力学（力・トルクを考えたロボット運動の記述と解析）", ("つくる",), "物理基礎：運動方程式。テーマNo.11（斜面と転倒）"),
+    ("応用編2", 5, (12, 10), "ロボット制御（目標とする運動を実現する制御手法）", ("つくる", "使う"), "テーマNo.9：つかむ強さと作物の傷み"),
+]
+COURSE_NOTES = (
+    "載せているのは日程表の見出し（題と日付）だけ。講座サイトの画面・講義のスライド・動画・課題の中身は載せない",
+    "『立ち位置』と『高校での入口』は作成者の見立てで、講座の公式な分類ではない",
+    "応用編2は確認できた第5回までを載せた。日程は変わることがある",
+)
+
+
+def lecture_status(month: int, day: int, today: dt.date) -> str:
+    """講義日が今日より前なら『済』、今日以降なら『これから』（その中でいちばん早いものは next_lecture で『次回』にする）"""
+    return "済" if dt.date(COURSE_YEAR, month, day) < today else "これから"
+
+
+def next_lecture(today: dt.date) -> tuple | None:
+    """今日以降でいちばん早い講義（全部終わっていれば None）"""
+    return next((x for x in LECTURES if dt.date(COURSE_YEAR, *x[2]) >= today), None)
+
+
+def lectures_of(part: str, today: dt.date) -> list[dict]:
+    nxt = next_lecture(today)
+    return [{"回": f"第{n}回", "日付": f"{m}/{d}", "題": title, "立ち位置（見立て）": "・".join(roles), "高校での入口": door,
+             "状況": "次回" if nxt and (p, n) == (nxt[0], nxt[1]) else lecture_status(m, d, today)}
+            for p, n, (m, d), title, roles, door in LECTURES if p == part]
+
+
+def role_coverage() -> dict[str, int]:
+    """6つの立ち位置それぞれに、講義が何回分あたるか（1回が2つの立ち位置にあたることもある）。偏りを見るための数"""
+    count = {r[0]: 0 for r in ROLES}
+    for *_x, roles, _door in LECTURES:
+        for r in roles:
+            count[r] += 1
+    return count
+
+
+def coverage_comment() -> str:
+    """偏りを言葉にする：多い立ち位置と、少ない立ち位置（＝別の学びで補うところ）"""
+    c = role_coverage()
+    top, low = max(c.values()), min(c.values())
+    many = "・".join(k for k, v in c.items() if v == top)
+    few = "・".join(k for k, v in c.items() if v == low)
+    return f"この講座でいちばん厚いのは『{many}』（{top}回分）、うすいのは『{few}』（{low}回分）。うすい所は、別の学びや経験で補う。"
+
+
 def _self_check() -> None:
     assert len(FIELDS_18) == 18 == len(set(FIELDS_18))
     assert [t["no"] for t in THEMES] == list(range(1, 18))
@@ -220,6 +299,19 @@ def _self_check() -> None:
     assert "（未記入）" in sheet and "言えない" in sheet and "草刈り" in sheet
     assert all(set(c[4]) <= set(range(1, 18)) for c in CASES)
     assert sum(1 for _ in INTRO) == 6 and len(FLOW) == 4 and set(THEME_NOTES) <= set(range(1, 18))
+    # 学びの実例（Physical AI講座）
+    names = {r[0] for r in ROLES}
+    assert len(LECTURES) == 18 and {x[0] for x in LECTURES} == set(COURSE_PARTS) and all(set(x[4]) <= names and x[4] for x in LECTURES)
+    assert [sum(1 for x in LECTURES if x[0] == p) for p in COURSE_PARTS] == [7, 6, 5]
+    dates = [dt.date(COURSE_YEAR, *x[2]) for x in LECTURES]
+    assert dates == sorted(dates) and all(d.weekday() == 3 for d in dates)                 # 日付順・すべて木曜
+    day = dt.date(2026, 11, 11)
+    assert next_lecture(day)[:2] == ("応用編2", 1) and next_lecture(dt.date(2026, 12, 11)) is None
+    assert [r["状況"] for r in lectures_of("応用編2", day)] == ["次回", "これから", "これから", "これから", "これから"]
+    assert {r["状況"] for r in lectures_of("基礎編", day)} == {"済"} and lecture_status(11, 12, dt.date(2026, 11, 12)) == "これから"
+    cov = role_coverage()
+    assert sum(cov.values()) == sum(len(x[4]) for x in LECTURES) and max(cov, key=cov.get) == "つくる" and all(v > 0 for v in cov.values())
+    assert "つくる" in coverage_comment() and len(COURSE_NOTES) == 3
 
 
 if __name__ == "__main__":
