@@ -23,6 +23,7 @@ import netsu_core
 import next_move
 import shinro_core
 import sister_sites as ss
+import social
 import sozai_core
 import tanpaku_core
 import tokushi_core
@@ -109,5 +110,9 @@ with st.sidebar:
     _b = ss.SITES["bakery"]
     st.link_button(f"{_b['icon']} {_b['name']} ↗", ss.url("bakery") or _b["repo"], width="stretch")
     st.caption(_b["role"])
+    if social.SOCIALS:  # URLが1つも無ければ見出しごと出さない（SNSのURLは social.py で一括管理）
+        st.divider()
+        st.markdown("**📣 活動の発信**")
+        social.buttons("で活動内容を見る", stacked=True)
 
 st.navigation(build_nav()).run()
