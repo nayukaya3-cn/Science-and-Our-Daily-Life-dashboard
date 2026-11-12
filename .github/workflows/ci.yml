@@ -39,6 +39,7 @@ jobs:
           python kuko_core.py
           python shinro_core.py
           python tokushi_core.py
+          python panic_core.py
           python ai_core.py
           python guard.py
           python backbone.py
