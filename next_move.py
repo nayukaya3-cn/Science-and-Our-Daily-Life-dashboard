@@ -111,6 +111,8 @@ PAGE_TAG = {
     "biseibutsu": "optimum", "kadai": "revise",
     # 2026-11 追加：熱・プラスチック・衣料と水・空港・終章（進路）。特別支援学校版は先生向けなのでタグなし
     "netsu": "optimum", "plastic": "card", "iryo": "purpose", "kuko": "minimum", "shinro": "explore",
+    # 2026-11-13 追加：終章 パニックプルーフ（自給日数は一番短いものが決める）
+    "panic": "minimum",
 }
 
 BY_ID = {h["id"]: h for h in HINTS}
