@@ -80,7 +80,7 @@ with tab1:
         can="選んだ資料で、どの段が手薄か・全部で何時間かかるか",
         cannot="その段がどれだけ深く学べるか（マスは深さを表さない）・自分にとっての難しさ",
         protocols=["P2", "P3"], material="資料×段のマス目")
-    st.caption("出どころ：作成者がまとめた資料9本の概要。講座名・講師名・事業所名は載せていません。時間とレクチャー数は資料に書かれていた値です。")
+    st.caption("出どころ：作成者がまとめた資料10本の概要。講座名・講師名・事業所名は載せていません。時間とレクチャー数は資料に書かれていた値です（📐 3DプリンタとCAD は未記入のため 0）。")
 
 # ── ② CO2と換気 ─────────────────────────────
 with tab2:
@@ -340,11 +340,40 @@ with tab5:
     ykg = p2c.slider("フィラメントの値段（円/kg）", 1500, 8000, 3000, 100, key="iot_ykg")
     st.metric("部品1個の材料費", f"{ic.filament_cost(grams, ykg):,.0f} 円")
     st.caption("ハウスの中は夏に50℃をこえることがある。PLAは60℃前後で柔らかくなるので、置き場所と材料を「🖨️ プラスチック：3Dプリンタの糸」のページで確かめる。")
+
+    st.markdown("#### 自分で設計する：3Dプリンタ向けのコツ")
+    st.dataframe(pd.DataFrame(ic.DESIGN_TIPS, columns=["コツ", "なぜ", "ハウスのIoTでの例"]), hide_index=True, width="stretch")
+    st.caption("資料に挙がっていた設計のコツのうち3つ。扱う材料：" + "・".join(ic.FILAMENTS_IOT) +
+               "（熱への強さは「🖨️ プラスチック：3Dプリンタの糸」で比べる）。")
+    st.markdown("##### はめ合いの隙間：図面どおりに描くと入らない")
+    ui.hint("3Dプリンタは、溶かした糸を少しずつ重ねる。重ねた糸がわずかに広がるので、穴は図面より狭く、出っぱりは太く仕上がる。")
+    f1, f2, f3 = st.columns(3)
+    hole = f1.number_input("穴（溝）の幅：図面（mm）", 1.0, 100.0, 10.0, 0.05, key="iot_hole", format="%.2f")
+    part = f2.number_input("差しこむ物の幅：図面（mm）", 1.0, 100.0, 10.0, 0.05, key="iot_part", format="%.2f")
+    swell = f3.slider("印刷で太る量（片側・mm）", 0.0, 0.3, 0.1, 0.01, key="iot_swell",
+                      help="機種・材料・設定で変わる仮定の値。小さな試し刷り（隙間を0.1mmずつ変えた見本）で確かめる")
+    fit = ic.clearance_fit(hole, part, swell)
+    msg = f"印刷後のすき間 {fit['gap']:+.2f} mm → **{fit['verdict']}**"
+    {"入らない": st.error, "きつい": st.warning, "ちょうど": st.success, "ゆるい": st.info}[fit["verdict"]](msg)
+    st.caption("『ちょうど』の幅（0.1〜0.4 mm）も目安。外して付け直すふたは広め、動かない差しこみは狭め、と目的で決める。")
+
+    st.markdown("##### 人の3Dデータを使うときは、ライセンスを読む")
+    st.dataframe(pd.DataFrame(ic.CC_TERMS, columns=["条件", "意味", "使うときにすること"]), hide_index=True, width="stretch")
+    l1, l2, l3 = st.columns(3)
+    terms = l1.multiselect("データに付いている条件", [t[0] for t in ic.CC_TERMS], default=["BY（表示）", "NC（非営利）"],
+                           key="iot_cc")
+    sell = l2.toggle("直売で売る品物・販促に使う", key="iot_cc_sell")
+    mod = l3.toggle("形を変えて使う（穴を足す など）", key="iot_cc_mod")
+    ok, notes = ic.cc_ok({t.split("（")[0] for t in terms}, commercial=sell, modify=mod)
+    (st.success if ok else st.error)(("この使い方はできる。" if ok else "この使い方はできない。") +
+                                     ("　" + "／".join(notes) if notes else ""))
+    st.caption("クリエイティブ・コモンズ（CC）の考え方の要点だけ。実際に使う前に、データのページに書かれたライセンスの本文を確かめる。"
+               "情報Ⅰの『知的財産権』の単元とつながる。")
     ui.reading_card(
         axis="費用の内わけ（材料費・電気代・クラウド）", unit="円、円/月、円/個",
         control="そろえた：測る数字（5つ）と間隔（10分）。変えた：部品の選び方・期間・電気代の単価",
         can="最初にかかるお金と、続けるのにかかるお金のどちらが大きいか",
-        cannot="作る時間・直す時間の値段（人の手間は入っていない）・無料枠がこの先も続くか",
+        cannot="作る時間・直す時間の値段（人の手間は入っていない）・無料枠がこの先も続くか・太る量が自分の機種で何mmか（試し刷りが必要）",
         protocols=["P1", "P3"], material="部品の表と3本の棒グラフ")
 
 # ── ⑥ 伴走と運用 ─────────────────────────────

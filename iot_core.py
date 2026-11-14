@@ -3,8 +3,9 @@
 
 問い：「ハウスの空気は、いま植物と人にとって『ちょうどいい』か。それを測り、貯め、知らせるしくみを自分たちで作って回せるか」
 
-出どころ（作成者がまとめた資料9本。講座名・講師名・事業所名は載せず、内容の骨組みだけを自分の言葉で整理した）
+出どころ（作成者がまとめた資料10本。講座名・講師名・事業所名は載せず、内容の骨組みだけを自分の言葉で整理した）
   - IoT講座3本：CO2の換気モニタ ／ 水耕栽培と自動水やり ／ 画像・CO2・温湿度・照度・水深のIoTキット（3Dプリンタ活用）
+  - ものづくり1本：3DプリンタとCADのはじめの一歩（3Dデータの探し方・印刷・自作・設計のコツ・ライセンス）
   - 周辺5本：MLOps（運用の輪）／ 生物系データサイエンス入門 ／ サワー種パン ／ クラウド上のWebアプリ構築 ／ オンライン直売
   - 就労継続支援B型 × 生成AI の仕事像（「教える人」であり「一緒に発見する人」）
 
@@ -33,7 +34,7 @@ EASY_WORDS = ("IoT（アイオーティー）＝「モノがインターネッ�
               "ここでは、センサーで測った数字を自動でネット上の表に書きこみ、いつでも見られるようにするしくみのこと。")
 
 # ─────────────────────────────────────────────
-# ① 掛け算の地図：6＋2の段（測る→…→動かす ＋ つくる・届ける）と、資料9本
+# ① 掛け算の地図：6＋2の段（測る→…→動かす ＋ つくる・届ける）と、資料10本
 # ─────────────────────────────────────────────
 #   (段, やさしい言い換え, 科学と人間生活での見方, 情報Ⅰの単元)
 STAGES: list[tuple[str, str, str, str]] = [
@@ -59,6 +60,9 @@ MATERIALS: list[dict] = [
     dict(id="kit", name="🧰 IoT③：画像・環境データのキット（3Dプリンタ）", hours=6.0, lectures=48, level="初級",
          stages=("測る", "貯める", "見る", "知らせる", "つくる"), field="物質の科学（プラスチック）・光や熱の科学",
          role="ハウスに置く本番機。写真・まとめメール・警報メールまで"),
+    dict(id="cad", name="📐 3DプリンタとCADのはじめの一歩", hours=0.0, lectures=0, level="初級",
+         stages=("つくる",), field="物質の科学（プラスチック）",
+         role="キットの部品を『探して印刷する』から『自分で設計する』へ。はめ合いの隙間・ライセンスを守る"),
     dict(id="mlops", name="🔁 MLOps：運用の輪の考え方", hours=2.5, lectures=23, level="中級",
          stages=("見る", "運用する"), field="終章（課題研究の進め方）",
          role="『作って終わり』にしない。データ→見直し→作り直しの輪を先生側が設計する"),
@@ -330,6 +334,56 @@ BOM: list[tuple[str, str, int, bool]] = [
     ("拡張ボード・配線", "配線をかんたん・安全にする", 1500, True),
     ("リレー＋小型ポンプ", "自動水やり（動かす）", 2000, True),
 ]
+# 3Dプリンタ向けの設計のコツ（資料に挙がっていた例のうち3つ。ほかは講座本編で確かめる）
+#   (コツ, なぜ, ハウスのIoTでの例)
+DESIGN_TIPS: list[tuple[str, str, str]] = [
+    ("できるだけシンプルにつくる", "形が複雑なほど、失敗・時間・材料が増える", "センサーカバーは箱＋穴だけから始める"),
+    ("大きなものは分けて設計する", "印刷できる大きさに上限があり、失敗したときの損も大きい", "カメラの台は『脚』と『首』に分ける"),
+    ("はめ込む所には隙間（クリアランス）をとる", "印刷すると少し太るので、図面どおりだと入らない", "基板を差しこむ溝、ふたのはめ合い"),
+]
+FILAMENTS_IOT = ("PLA", "PETG", "TPU", "ABS", "ASA", "PC")   # 資料で扱っていた材料
+
+
+def clearance_fit(hole_mm: float, part_mm: float, swell_mm: float) -> dict:
+    """はめ合いの判定。印刷すると穴は swell の分だけ狭く、出っぱりは swell の分だけ太ると仮定（片側ずつ）。
+    返り値：印刷後のすき間[mm]と判定（入らない／きつい／ちょうど／ゆるい）"""
+    gap = (hole_mm - swell_mm) - (part_mm + swell_mm)
+    if gap < 0:
+        verdict = "入らない"
+    elif gap < 0.1:
+        verdict = "きつい"
+    elif gap <= 0.4:
+        verdict = "ちょうど"
+    else:
+        verdict = "ゆるい"
+    return dict(gap=gap, verdict=verdict)
+
+
+#   クリエイティブ・コモンズの4つの条件（記号, 意味, 使うときにすること）
+CC_TERMS: list[tuple[str, str, str]] = [
+    ("BY（表示）", "作った人の名前を示す", "どのデータを使ったか、作者名とライセンスを書く"),
+    ("NC（非営利）", "お金をもうける目的には使えない", "直売で売る品物・販促に使わない"),
+    ("SA（継承）", "改変したら、同じライセンスで公開する", "作り直した3Dデータにも同じ条件を付ける"),
+    ("ND（改変禁止）", "形を変えてはいけない", "穴を足すなどの改造をしない（そのまま印刷だけ）"),
+]
+
+
+def cc_ok(terms, *, commercial: bool, modify: bool) -> tuple[bool, list[str]]:
+    """選んだ条件で、その使い方が許されるか。返り値：(使えるか, 守ること・だめな理由)"""
+    notes, ok = [], True
+    if "NC" in terms and commercial:
+        ok = False
+        notes.append("NC：売る品物・販促には使えない")
+    if "ND" in terms and modify:
+        ok = False
+        notes.append("ND：形を変えて使えない")
+    if "BY" in terms:
+        notes.append("BY：作者名とライセンスを書く")
+    if "SA" in terms and modify:
+        notes.append("SA：作り直したデータも同じライセンスで公開する")
+    return ok, notes
+
+
 POWER_W = 5.0                # 本体の消費電力の目安 [W]（機種と負荷で 3〜8W ほど）
 YEN_PER_KWH = 31.0           # 電気代の目安単価 [円/kWh]
 
@@ -448,7 +502,7 @@ EXAM = dict(
 
 def _self_check() -> None:
     # ① 地図
-    assert len(MATERIALS) == 9 and len(STAGE_NAMES) == 8
+    assert len(MATERIALS) == 10 and len(STAGE_NAMES) == 8
     assert all(set(m["stages"]) <= set(STAGE_NAMES) for m in MATERIALS)
     assert abs(sum(m["hours"] for m in MATERIALS) - 32.5) < 1e-9
     core = plan_summary(IOT_CORE_IDS)
@@ -507,6 +561,13 @@ def _self_check() -> None:
     assert set(found) == {"service_account.json", "token.json", "config.ini", "key.pem", "photo_token.pickle"}
     assert risky_files(["main.py", "README.md", "requirements.txt"]) == []
     assert security_score([True] * len(SECURITY_CHECKS)) == SECURITY_MAX == 14
+    assert clearance_fit(10.0, 10.0, 0.1)["verdict"] == "入らない"            # 図面どおり＝印刷すると入らない
+    assert clearance_fit(10.4, 10.0, 0.05)["verdict"] == "ちょうど"
+    assert abs(clearance_fit(10.4, 10.0, 0.05)["gap"] - 0.3) < 1e-9
+    assert cc_ok({"BY", "NC"}, commercial=True, modify=False)[0] is False
+    assert cc_ok({"BY", "ND"}, commercial=False, modify=True)[0] is False
+    assert cc_ok({"BY", "SA"}, commercial=True, modify=True) == (True, ["BY：作者名とライセンスを書く",
+                                                                       "SA：作り直したデータも同じライセンスで公開する"])
     assert EXAM["ans"] in EXAM["opts"] and len(LESSONS) == 6 and len(ROLES) == 5
 
 

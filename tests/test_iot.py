@@ -28,7 +28,8 @@ def test_values_match_the_sources():
     """資料に書かれていた時間・レクチャー数・材料費の目安、公的な基準値と一致するか"""
     got = {m["id"]: (m["hours"], m["lectures"]) for m in ic.MATERIALS}
     assert got == {"kanki": (2.0, 45), "garden": (2.5, 35), "kit": (6.0, 48), "mlops": (2.5, 23), "bio": (1.0, 25),
-                   "sour": (5.0, 105), "web": (10.0, 121), "marche": (3.5, 22), "fukushi": (0.0, 0)}
+                   "sour": (5.0, 105), "web": (10.0, 121), "marche": (3.5, 22), "fukushi": (0.0, 0),
+                   "cad": (0.0, 0)}
     assert ic.BUDGET_RANGE == (20000, 30000)
     assert ic.LIMITS == {"建築物衛生法（事務所など）": 1000, "学校環境衛生基準（教室）": 1500}
     assert ic.VENT_PER_PERSON == 30
@@ -96,3 +97,14 @@ def test_security_gate_and_file_names(monkeypatch):
     at.run()
     assert not at.exception
     assert any("すべて確認できた" in s.value for s in at.success)
+
+
+def test_fit_and_license(monkeypatch):
+    """図面どおりだと入らない／NC のデータは売る品物に使えない"""
+    at = _run(monkeypatch)
+    assert any("入らない" in e.value for e in at.error)
+    at.number_input(key="iot_hole").set_value(10.4).run()
+    assert any("ちょうど" in x.value for x in at.success)
+    at.toggle(key="iot_cc_sell").set_value(True).run()
+    assert not at.exception
+    assert any("できない" in e.value and "NC" in e.value for e in at.error)
