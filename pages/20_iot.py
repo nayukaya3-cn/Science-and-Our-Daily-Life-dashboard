@@ -437,6 +437,12 @@ with tab6:
         st.caption("入力はこの画面の中だけで使い、サーバーには保存しません。")
 
 st.divider()
+with st.container(border=True):
+    st.markdown("**📡 独立版ダッシュボード「IoTアプリ構築・運用支援 ＝ フィールドワーク実践」**")
+    st.markdown("このページを8つの段（測る〜届ける）に分けて広げた別のダッシュボード。"
+                "**1週間の健康診断（止まった・固まった・ずれた）**、**自分たちのCSVの読みこみ**、**まとめメールの文面**、"
+                "**届ける（言える1文・言いすぎの点検）**はそちらにあります。")
+    st.link_button("GitHub で見る ↗", "https://github.com/nayukaya3-cn/IoT-Fieldwork-dashboard")
 st.markdown("**つながるページ**：🦠 微生物と発酵（温度と発酵の速さ）／ 🖨️ プラスチック：3Dプリンタの糸（PLAの熱の弱さ）／ "
             "🛡️ パニックプルーフ（井戸・ハウスの備え）／ 🧰 AIを自分の武器にする（伴走の型）／ 🌾 畑とパン工房につなげる")
 ui.next_move_tag("iot")
