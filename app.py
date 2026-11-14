@@ -4,7 +4,7 @@
 起動: streamlit run app.py
   ホームの中身は home.py、各ページは pages/、計算部品は tanpaku_core.py にあります。
 
-左メニューは「授業の流れ」の順に束ねています（生命の科学 → 熱・物質・地球の科学 → 情報Ⅰ → FW → 終章 → 次の一手）。
+左メニューは「授業の流れ」の順に束ねています（生命の科学 → 熱・物質・地球の科学 → 情報Ⅰ → FW（畑・IoT）→ 終章 → 次の一手）。
 最後に「学校に合わせて使う」（特別支援学校版・AI伴走ワーク）と、教員向け1つ（合言葉で保護）。1つのまとまりは最大6ページ。
 ページを足すときは NAV に1行足すだけです（ファイルが無い行は自動で飛ばします）。
 """
@@ -17,6 +17,7 @@ import ai_core
 import backbone
 import bisei_core
 import guard
+import iot_core
 import kadai_core
 import kuko_core
 import netsu_core
@@ -33,7 +34,7 @@ import ui
 # 画面部品の版が古ければ、依存の順（計算部品 → 背骨 → 画面部品）に読み直す。
 if getattr(ui, "API_VERSION", 0) < 5:
     for _m in (tanpaku_core, bisei_core, kadai_core, netsu_core, sozai_core, kuko_core, shinro_core, tokushi_core,
-               panic_core, ai_core, guard, backbone, next_move, ss, ui):
+               panic_core, ai_core, iot_core, guard, backbone, next_move, ss, ui):
         importlib.reload(_m)
 
 ROOT = Path(__file__).parent
@@ -67,6 +68,7 @@ NAV = {
     ],
     "🌾 フィールドワークへ": [
         ("pages/7_field.py", "畑とパン工房につなげる", "🌾"),
+        ("pages/20_iot.py", "IoTでハウスを測る（構築・運用支援）", "📡"),
     ],
     "🧭 終章 課題研究": [
         ("pages/11_kadai.py", "課題研究の進め方・報告書", "🧭"),

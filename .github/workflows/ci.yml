@@ -41,6 +41,7 @@ jobs:
           python tokushi_core.py
           python panic_core.py
           python ai_core.py
+          python iot_core.py
           python guard.py
           python backbone.py
           python next_move.py
