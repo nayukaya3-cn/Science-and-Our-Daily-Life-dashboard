@@ -113,6 +113,8 @@ PAGE_TAG = {
     "netsu": "optimum", "plastic": "card", "iryo": "purpose", "kuko": "minimum", "shinro": "explore",
     # 2026-11-13 追加：終章 パニックプルーフ（自給日数は一番短いものが決める）
     "panic": "minimum",
+    # 2026-11-15 追加：フィールドワーク実践（IoT）。規則を1か所だけ変えて前の週とくらべる＝運用の輪
+    "iot": "revise",
 }
 
 BY_ID = {h["id"]: h for h in HINTS}
