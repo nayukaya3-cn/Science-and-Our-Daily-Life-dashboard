@@ -39,8 +39,11 @@ def test_values_match_the_sources():
 def test_no_names_of_courses_or_people():
     """講座名・講師名・事業所名・URL を教材に持ちこんでいない"""
     text = (ROOT / "iot_core.py").read_text(encoding="utf-8") + (ROOT / PAGE).read_text(encoding="utf-8")
-    for word in ("udemy", "Udemy", "http://", "https://", "大手町", "株式会社"):
+    for word in ("udemy", "Udemy", "http://", "大手町", "株式会社"):
         assert word not in text, word
+    # URLは自分たちのリポジトリ（独立版ダッシュボード）だけ
+    import re
+    assert set(re.findall(r"https://[^\s\"')]+", text)) <= {"https://github.com/nayukaya3-cn/IoT-Fieldwork-dashboard"}
 
 
 def test_ventilation_model_is_consistent():
