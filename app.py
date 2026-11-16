@@ -17,6 +17,7 @@ import ai_core
 import backbone
 import bisei_core
 import guard
+import hatsuga_core
 import iot_core
 import kadai_core
 import kuko_core
@@ -34,7 +35,7 @@ import ui
 # 画面部品の版が古ければ、依存の順（計算部品 → 背骨 → 画面部品）に読み直す。
 if getattr(ui, "API_VERSION", 0) < 5:
     for _m in (tanpaku_core, bisei_core, kadai_core, netsu_core, sozai_core, kuko_core, shinro_core, tokushi_core,
-               panic_core, ai_core, iot_core, guard, backbone, next_move, ss, ui):
+               panic_core, ai_core, iot_core, hatsuga_core, guard, backbone, next_move, ss, ui):
         importlib.reload(_m)
 
 ROOT = Path(__file__).parent
@@ -68,6 +69,7 @@ NAV = {
     ],
     "🌾 フィールドワークへ": [
         ("pages/7_field.py", "畑とパン工房につなげる", "🌾"),
+        ("pages/21_hatsuga.py", "発芽を予測する：積算温度（畑の記録）", "🌱"),
         ("pages/20_iot.py", "IoTでハウスを測る（構築・運用支援）", "📡"),
     ],
     "🧭 終章 課題研究": [
